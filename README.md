@@ -5,6 +5,8 @@ wrapper library for [OpenGL ES](https://www.khronos.org/opengles/). The API is
 designed so that when it's bound to Javascript the API is as close as possible
 to [WebGL](https://www.khronos.org/webgl/).
 
+The project is nowhere near ready yet, check back later.
+
 ## License
 
 `lib.dom.ts` was taken from Microsoft's Typescript project. The files in `refs`
