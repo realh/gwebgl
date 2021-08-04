@@ -1,6 +1,6 @@
 // This utility scans all the interface ref .d.ts files passed as arguments
 // and lists all the types they contain reference to on stdout.
-import { cmdArgs, consoleLog, consolePrint, loadText } from "./sys.js";
+import { cmdArgs, consolePrint, loadText } from "./sys.js";
 import { parseInterface } from "./iface-parser.js";
 
 // Specify the .d.ts refs file to parse on the command line
@@ -25,7 +25,6 @@ function addTypesFromFile(set, filename) {
 function parseAll() {
     const set = new Set();
     for (const f of cmdArgs) {
-        consoleLog(`Parsing ${f}`);
         addTypesFromFile(set, f);
     }
     consolePrint(Array.from(set.keys()).join('\n'), '\n');
