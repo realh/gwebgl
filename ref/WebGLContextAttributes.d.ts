@@ -1,5 +1,3 @@
-type WebGLPowerPreference = "default" | "high-performance" | "low-power";
-
 interface WebGLContextAttributes {
     alpha?: boolean;
     antialias?: boolean;

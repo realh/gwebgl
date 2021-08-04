@@ -2,7 +2,7 @@ import { consoleLog } from "./sys.js";
 
 // lines can be a string or string[]. The result is an array of members.
 // Each member is either a property:
-// { name: string; type: type; readOnly: boolean; }
+// { name: string; type: type; readOnly: boolean; optional: boolean }
 // or a method:
 // { name: string; args: {name: string; type: type}[]; returnType: type; }
 // where type is:
@@ -21,7 +21,7 @@ export function parseInterface(lines) {
         ln = ln.trim().replace(/;$/, '');
         if (ln.startsWith('readonly')) {
             members.push(parseProperty(ln.substring(9), true));
-        } else if (/^[A-Z_a-z0-9]*:/.test(ln)) {
+        } else if (/^[A-Z_a-z0-9]*\??:/.test(ln)) {
             members.push(parseProperty(ln, false));
         } else {
             members.push(parseMethod(ln));
@@ -31,13 +31,20 @@ export function parseInterface(lines) {
 }
 
 function parseProperty(ln, readOnly) {
+    let optional = false;
     let [name, typeStr] = ln.split(':');
+    name = name.trim();
+    if (name.endsWith('?')) {
+        optional = true;
+        name = name.substring(0, name.length - 1);
+    }
     const typedef = parseType(typeStr);
     return { name, type: typedef, readOnly };
 }
 
 function parseType(typeStr) {
     let nullable = false;
+    typeStr = typeStr.trim();
     if (typeStr.includes('|')) {
         const union = typeStr.split('|').map(s => s.trim()).filter(s => {
             if (s == 'null') {
@@ -69,5 +76,5 @@ function parseMethod(ln) {
             parsedArgs.push({ name: nm, type: tp });
         }
     }
-    return { name, args: parsedArgs };
+    return { name, args: parsedArgs, returnType: ret };
 }
