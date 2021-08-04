@@ -4,7 +4,7 @@ interface WebGLContextAttributes {
     depth?: boolean;
     desynchronized?: boolean;
     failIfMajorPerformanceCaveat?: boolean;
-    powerPreference?: WebGLPowerPreference;
+    powerPreference?: string;
     premultipliedAlpha?: boolean;
     preserveDrawingBuffer?: boolean;
     stencil?: boolean;
