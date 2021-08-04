@@ -24,3 +24,9 @@ export function saveText(fileName, text) {
     const b = stringToBytes(text);
     GLib.file_set_contents(fileName, b);
 }
+
+// Command line arguments excluding the runner (eg 'gjs') and script filename
+export const cmdArgs = ARGV;
+
+// gjs doesn't have console (yet) either
+export const consoleLog = globalThis.log;

@@ -1,3 +1,5 @@
+import { consoleLog } from "./sys.js";
+
 // lines can be a string or string[]. The result is an array of members.
 // Each member is either a property:
 // { name: string; type: type; readOnly: boolean; }
@@ -8,8 +10,12 @@
 // type.name may be 'void'
 export function parseInterface(lines) {
     if (typeof lines == 'string') { lines = lines.split('\n'); }
-    // Ignore first and last lines
-    lines = lines.slice(1, lines.length - 1);
+    // Ignore first line and trailing }
+    lines = lines.slice(1);
+    let l;
+    while (l = lines[lines.length - 1].trim(), l == '}' || !l) {
+        lines.pop();
+    }
     const members = [];
     for (let ln of lines) {
         ln = ln.trim().replace(/;$/, '');
@@ -18,14 +24,14 @@ export function parseInterface(lines) {
         } else if (/^[A-Z_a-z0-9]*:/.test(ln)) {
             members.push(parseProperty(ln, false));
         } else {
-            members.push(parseFunction(ln));
+            members.push(parseMethod(ln));
         }
     }
     return members;
 }
 
 function parseProperty(ln, readOnly) {
-    let name, typeStr = ln.split(':');
+    let [name, typeStr] = ln.split(':');
     const typedef = parseType(typeStr);
     return { name, type: typedef, readOnly };
 }
@@ -40,21 +46,28 @@ function parseType(typeStr) {
             }
             return true;
         });
-        if (nullable) { typestr = union.join(' | '); }
+        if (nullable) {
+            // Replace the union type without null
+            typeStr = union.join(' | ');
+        }
     }
     return { name: typeStr, nullable };
 }
 
 function parseMethod(ln) {
-    const name, tail = ln.split('(', 2);
-    let args, ret = ln.split('):');
+    const [name, tail] = ln.split('(', 2);
+    let [args, ret] = tail.split('):');
     ret = parseType(ret.trim());
-    args = args.split(',');
+    args = args.trim();
     const parsedArgs = [];
-    for (const a of args) {
-        let nm, tp = a.split(':');
-        tp = tp.parseType(tp.trim());
-        parsedArgs.push({ name: nm, type: tp });
+    if (args) {
+        args = args.split(',');
+        for (const a of args) {
+            let [nm, tp] = a.split(':');
+            //consoleLog(`Parsed arg '${a} as ${nm}: ${tp}`);
+            tp = parseType(tp.trim());
+            parsedArgs.push({ name: nm, type: tp });
+        }
     }
     return { name, args: parsedArgs };
 }
