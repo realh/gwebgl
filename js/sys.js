@@ -1,7 +1,12 @@
+// Anything that depends on the underlying platform goes here so it can be
+// swapped out. This version runs on gjs/gi, but forks might prefer to use
+// node.
 import GLib from "gi://GLib";
 
 const byteArray = imports.byteArray;
 
+// gjs is going to support TextEncoder/TextDecoder, but it's probably not
+// available in mainstream releases yet
 export function bytesToString(b) {
     return byteArray.toString(b);
 }
