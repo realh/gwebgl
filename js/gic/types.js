@@ -11,10 +11,10 @@ export class TypeMapper {
     // Returns: A string containing the C typename
     mapType(typeDetails) {
         const n = typeDetails.type.name;
-        if (n.startsWith('WebGL') || n.startsWith("EXT_") ||
-                    n.startsWith("OES_") || n.startsWith("WEBGL_"))
+        if (n.startsWith('WebGL') || n.startsWith('EXT_') ||
+                    n.startsWith('OES_') || n.startsWith('WEBGL_'))
         {
-            const dblIndirection = n.endsWith("[]") ? '*' : '';
+            const dblIndirection = n.endsWith('[]') ? '*' : '';
             return `Gwebgl${n} *${dblIndirection}`;
         } else if (n.startsWith('"') || n == 'string') {
             // TODO: There may be exceptions to this simple constness rule
@@ -34,7 +34,7 @@ export class TypeMapper {
                 e + `returns `
             }
         }
-        e += ` unrecognised type ${type.name}`;
+        e += `unrecognised type ${type.name}`;
         throw new Error(e);
     }
 

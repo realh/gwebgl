@@ -1,5 +1,5 @@
-import { cmdArgs, consoleLog, loadText } from "../js/sys.js";
-import { parseInterface } from "../js/iface-parser.js";
+import { cmdArgs, consoleLog, loadText } from '../js/sys.js';
+import { parseInterface } from '../js/iface-parser.js';
 
 // Specify the .d.ts refs file to parse on the command line
 

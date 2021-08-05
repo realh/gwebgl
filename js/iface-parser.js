@@ -1,4 +1,4 @@
-import { consoleLog } from "./sys.js";
+import { consoleLog } from './sys.js';
 
 // lines can be a string or string[]. The result is an array of members.
 // Each member is either a property:
