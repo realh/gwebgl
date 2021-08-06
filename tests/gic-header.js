@@ -10,9 +10,10 @@ import { HeaderClassBuilder } from '../js/gic/class-header.js';
 function runTest(filename, derivability, header, parent) {
     const ifaceTxt = loadText(filename);
     const ifaceData = parseInterface(ifaceTxt);
-    const builder = new HeaderClassBuilder(header, derivability == 'final');
-    builder.buildClass(ifaceData.name, ifaceData.members,
-        derivability == 'final', parent);
+    const builder = new HeaderClassBuilder(header);
+    let name = filename.split('/');
+    name = name[name.length - 1].replace('.d.ts', '');
+    builder.buildClass(name, ifaceData, derivability == 'final', parent);
     consoleLog(builder.lines);
 }
 

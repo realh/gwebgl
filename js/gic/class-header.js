@@ -12,7 +12,7 @@ export class HeaderClassBuilder extends ClassBuilder {
     }
 
     buildClass(name, members, final, parent) {
-        this.sentinel = `__${this.nameTx.upperedClassName()}_H`
+        this.sentinel = `__${this.nameTx.upperedClassName(name)}_H`;
         parent = parent || 'GObject';
         super.buildClass(name, members, final, parent);
     }
