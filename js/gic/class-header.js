@@ -5,7 +5,7 @@ export class HeaderClassBuilder extends ClassBuilder {
     // glHeaderName should be 'GLES2/gl2.h' or 'GLES3/gl3.h' or nully. If nully
     // it will generate a conditional include that can be overriden by including
     // either of the above before the header this generates.
-    constructor(glHeaderName, final) {
+    constructor(glHeaderName) {
         super();
         this.glHeaderName = glHeaderName;
         this.nameTx = new NameTransformer();
