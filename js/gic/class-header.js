@@ -37,6 +37,7 @@ export class HeaderClassBuilder extends ClassBuilder {
     }
 
     getClassOpener() {
+        this.gClassName = this.nameTx.classNameFromJS();
         this.classNameUpper = this.nameTx.upperedClassName(this.name);
         this.classNameLower = this.nameTx.loweredClassName(this.name);
         const [nmSpcUpper, unqClsNmUpper] = this.classNameUpper.split('_', 2);
@@ -44,8 +45,14 @@ export class HeaderClassBuilder extends ClassBuilder {
             `${this.classNameLower}_get_type()`];
         const derivable = this.final ? "FINAL" : "DERIVABLE";
         lines.push(`G_DEFINE_${derivable}_TYPE(` +
-            `${this.nameTx.classNameFromJS()}, ${this.classNameLower}, ` +
+            `${this.gClassName}, ${this.classNameLower}, ` +
             `${nmSpcUpper}, ${unqClsNmUpper}, ${this.parent})`);
+        if (!this.final) {
+            lines.push('',
+                `struct _${this.gClassName}Class {`,
+                `    ${this.parent}Class parent_class;`,
+                '};');
+        }
         return lines;
     }
 
