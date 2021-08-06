@@ -73,7 +73,7 @@ function parseMethod(ln) {
             let [nm, tp] = a.split(':');
             //consoleLog(`Parsed arg '${a} as ${nm}: ${tp}`);
             tp = parseType(tp.trim());
-            parsedArgs.push({ name: nm, type: tp });
+            parsedArgs.push({ name: nm.trim(), type: tp });
         }
     }
     return { name, args: parsedArgs, returnType: ret };

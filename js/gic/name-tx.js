@@ -1,4 +1,4 @@
-import {consoleError} from '../sys.js';
+import {consoleError, consoleLog} from '../sys.js';
 import {TypeMapper} from './types.js';
 
 // NameTransformer for transforming names from JS/TS WebGL to C/GObject
@@ -20,13 +20,16 @@ export class NameTransformer {
     separateCamels(name) {
         let s = 'gwebgl_';
         // We want to treat 'WebGL' as one word.
-        if (name.startsWith('WebGL')) {
+        if (name.startsWith('WebGL2')) {
+            s += 'webgl2_';
+            name = name.substring(6);
+        } else if (name.startsWith('WebGL')) {
             s += 'webgl_';
             name = name.substring(5);
         }
         // Add an underscore before any capital that follows a non-capital.
         name = /([a-z0-9])([A-Z])/g[Symbol.replace](name, '$1_$2');
-        return name;
+        return s + name;
     }
 
     loweredClassName(name) {
@@ -48,7 +51,7 @@ export class NameTransformer {
     // '//' comment prefix.
     methodSignature(method, className) {
         let comment = '';
-        const returnType = errorCheckedTypeConversion({
+        const returnType = this.errorCheckedTypeConversion({
             type: method.returnType,
             memberOf: className,
             method: method.name
@@ -64,7 +67,8 @@ export class NameTransformer {
                 method: method.name,
                 argName: a.name
             };
-            a = `${this.errorCheckedTypeConversion(td)} ${a.name}`;
+            const t = this.errorCheckedTypeConversion(td);
+            a = `${t}${a.name}`;
             if (a.includes('/*')) {
                 comment = '// ';
             }
@@ -77,7 +81,7 @@ export class NameTransformer {
     errorCheckedTypeConversion(typeDetails) {
         try {
             let t = this.typeMapper.mapType(typeDetails);
-            if (!t.endsWith('*')) {
+            if (!t.endsWith('*') && !t.endsWith(' ')) {
                 t += ' ';
             }
             return t;

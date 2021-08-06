@@ -4,8 +4,8 @@
 export class ClassBuilder {
     // nameTx: NameTransformer
 
-    // members is either a Map<string, member> or an array of such maps. Each
-    // member is a property or method as described in iface-parser.js.
+    // members is a flat array of member objects where a member is a property
+    // or method as described in iface-parser.js.
     // The 'final' bool argument determines whether the class is derivable.
     // parent is the name (in the target bindings) of the parent class. It can
     // be nully to use the default base class for the target (eg GObject).
@@ -13,18 +13,14 @@ export class ClassBuilder {
         this.name = name;
         this.final = final;
         this.parent = parent;
-        if (!(members instanceof Map)) {
-            // Merge maps
-            members = new Map(members.reduce((a, b) => [...a, ...b], []));
-        }
         // Split into properties and methods
         this.props = new Map();
         this.methods = new Map();
-        for (const [k, v] of members) {
-            if (v.hasOwnProperty('readOnly')) {
-                this.props.set(k, v);
+        for (const m of members) {
+            if (m.hasOwnProperty('readOnly')) {
+                this.props.set(m.name, m);
             } else {
-                this.methods.set(k, v);
+                this.methods.set(m.name, m);
             }
         }
         this.process();
@@ -36,8 +32,8 @@ export class ClassBuilder {
         this.lines.push('', ...this.getFooter());
     }
 
-    getclassDefinition() {
-        lines = this.getClassOpener();
+    getClassDefinition() {
+        const lines = this.getClassOpener();
         lines.push(...this.getPropertyDeclarations());
         lines.push(...this.getFunctionDeclarations());
         lines.push(...this.getClassCloser());

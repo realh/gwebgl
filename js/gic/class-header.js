@@ -37,10 +37,12 @@ export class HeaderClassBuilder extends ClassBuilder {
     }
 
     getClassOpener() {
-        this.gClassName = this.nameTx.classNameFromJS();
+        this.gClassName = this.nameTx.classNameFromJS(this.name);
         this.classNameUpper = this.nameTx.upperedClassName(this.name);
         this.classNameLower = this.nameTx.loweredClassName(this.name);
-        const [nmSpcUpper, unqClsNmUpper] = this.classNameUpper.split('_', 2);
+        const splitCNU = this.classNameUpper.split('_');
+        const nmSpcUpper = splitCNU[0];
+        const unqClsNmUpper = splitCNU.slice(1).join('_');
         const lines = [`#define ${nmSpcUpper}_TYPE_${unqClsNmUpper} ` +
             `${this.classNameLower}_get_type()`];
         const derivable = this.final ? "FINAL" : "DERIVABLE";
@@ -53,6 +55,7 @@ export class HeaderClassBuilder extends ClassBuilder {
                 `    ${this.parent}Class parent_class;`,
                 '};');
         }
+        lines.push('');
         return lines;
     }
 
@@ -68,7 +71,7 @@ export class HeaderClassBuilder extends ClassBuilder {
         return lines;
     }
 
-    getclassCloser() {
+    getClassCloser() {
         return [];
     }
 

@@ -26,7 +26,7 @@ export class TypeMapper {
         // Fail gracefully
         const member = typeDetails.method ? `method ${typeDetails.method}` :
             `property ${varName}`;
-        let e = `Can't process ${member} of ${memberOf}:- `;
+        let e = `Can't process ${member} of ${typeDetails.memberOf}:- `;
         if (typeDetails.method) {
             if (typeDetails.varName) {
                 e + `arg ${typeDetails.varName} has `
@@ -34,7 +34,7 @@ export class TypeMapper {
                 e + `returns `
             }
         }
-        e += `unrecognised type ${type.name}`;
+        e += `unrecognised type ${typeDetails.type.name}`;
         throw new Error(e);
     }
 
