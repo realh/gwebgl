@@ -4,7 +4,8 @@ import { consoleLog } from './sys.js';
 // Each member is either a property:
 // { name: string; type: type; readOnly: boolean; optional: boolean }
 // or a method:
-// { name: string; args: {name: string; type: type}[]; returnType: type; }
+// { name: string; args: {name: string; type: type, optional: boolean}[];
+//   returnType: type; }
 // where type is:
 // { name: string, nullable: boolean }
 // type.name may be 'void'
@@ -70,10 +71,16 @@ function parseMethod(ln) {
     if (args) {
         args = args.split(',');
         for (const a of args) {
+            let optional = false;
             let [nm, tp] = a.split(':');
+            nm = nm.trim();
+            if (nm.endsWith('?')) {
+                optional = true;
+                nm = nm.substring(0, nm.length - 1);
+            }
             //consoleLog(`Parsed arg '${a} as ${nm}: ${tp}`);
             tp = parseType(tp.trim());
-            parsedArgs.push({ name: nm.trim(), type: tp });
+            parsedArgs.push({ name: nm.trim(), type: tp, optional });
         }
     }
     return { name, args: parsedArgs, returnType: ret };
