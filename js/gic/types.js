@@ -17,13 +17,14 @@ export class TypeMapper {
             n = n.substring(0, n.length - 2);
         }
         if (n.startsWith('WebGL') || n.startsWith('EXT_') ||
-                    n.startsWith('OES_') || n.startsWith('WEBGL_'))
+                    n.startsWith('OES_') || n.startsWith('WEBGL_') ||
+                    n.startsWith('ANGLE_'))
         {
-            n = `Gwebgl${n} *${dblIndirection}`;
+            n = `Gwebgl${n} *`;
         } else if (n.startsWith('"') || n.startsWith('string')) {
             // TODO: There may be exceptions to this simple constness rule
             //let immutable = typeDetails.method ? 'const ' : '';
-            n = 'const char *' + dblIndirection;
+            n = 'const char *';
         } else if (TypeMapper.builtins.includes(n)) {
         } else if (m) {
             n = m;
@@ -41,6 +42,11 @@ export class TypeMapper {
             }
             e += `unrecognised type ${typeDetails.type.name}`;
             throw new Error(e);
+        }
+        if (dblIndirection) {
+            if (!n.endsWith('*')) {
+                dblIndirection = ' *';
+            }
         }
         return n + dblIndirection;
     }
