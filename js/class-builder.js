@@ -5,7 +5,9 @@ export class ClassBuilder {
     // nameTx: NameTransformer
 
     // members is a flat array of member objects where a member is a property
-    // or method as described in iface-parser.js.
+    // or method as described in iface-parser.js. Some classes have properties
+    // with a 'construct' flag. Such properties are read-only | construct-only
+    // and have getters, all non-introspected.
     // The 'final' bool argument determines whether the class is derivable.
     // parent is the name (in the target bindings) of the parent class. It can
     // be nully to use the default base class for the target (eg GObject).
@@ -14,15 +16,29 @@ export class ClassBuilder {
         this.final = final;
         this.parent = parent;
         // Split into properties and methods
-        this.props = new Map();
-        this.methods = new Map();
+        this.props = [];
+        this.methods = [];
         for (const m of members) {
             if (m.hasOwnProperty('readOnly')) {
-                this.props.set(m.name, m);
+                this.props.push(m);
             } else {
-                this.methods.set(m.name, m);
+                this.methods.push(m);
             }
         }
+        // Sort to make sure overloads appear consecutively
+        const sorter = (a, b) => {
+            a = a.name;
+            b = b.name;
+            if (a < b) {
+                return -1;
+            } else if (a > b) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        this.props.sort(sorter);
+        this.methods.sort(sorter);
         this.process();
     }
 

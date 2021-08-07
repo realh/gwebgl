@@ -60,13 +60,25 @@ export class HeaderClassBuilder extends ClassBuilder {
     }
 
     getPropertyDeclarations() {
-        return [];
+        const lines = [];
+        for (const p of this.props) {
+            if (p.construct) {
+                const getter = {
+                    name: 'get_' + p.name,
+                    args: [],
+                    returnType: p.type
+                }
+                lines.push(this.nameTx.methodSignature(getter, this.name) +
+                    ';');
+            }
+        }
+        return lines;
     }
 
     getFunctionDeclarations() {
         const lines = [];
-        for (const [k, v] of this.methods) {
-            lines.push(this.nameTx.methodSignature(v, this.name) + ';');
+        for (const m of this.methods) {
+            lines.push(this.nameTx.methodSignature(m, this.name) + ';');
         }
         return lines;
     }
