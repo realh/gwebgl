@@ -62,6 +62,7 @@ export class TypeMapper {
     ]
 
     static simpleMap = {
+        'boolean': 'gboolean',
         'GLint | GLboolean': 'GLint',
         'Float32List': 'const GLfloat *',
         'Int32List': 'const gint32 *',
