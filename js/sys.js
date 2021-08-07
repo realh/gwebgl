@@ -31,5 +31,8 @@ export const cmdArgs = ARGV;
 // gjs doesn't have console (yet) either
 export const consoleLog = globalThis.log;
 export const consolePrint = globalThis.print;
-export const consoleWarn = globalThis.warn;
 export const consoleError = globalThis.logError;
+
+export function consoleWarn(...args) {
+    printerr('WARNING:', ...args);
+}

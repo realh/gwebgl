@@ -10,18 +10,23 @@ export class TypeMapper {
     // }
     // Returns: A string containing the C typename
     mapType(typeDetails) {
-        const n = typeDetails.type.name;
+        let n = typeDetails.type.name;
+        const dblIndirection = n.endsWith('[]') ? '*' : '';
         if (n.startsWith('WebGL') || n.startsWith('EXT_') ||
                     n.startsWith('OES_') || n.startsWith('WEBGL_'))
         {
-            const dblIndirection = n.endsWith('[]') ? '*' : '';
             return `Gwebgl${n} *${dblIndirection}`;
-        } else if (n.startsWith('"') || n == 'string') {
+        } else if (n.startsWith('"') || n.startsWith('string')) {
             // TODO: There may be exceptions to this simple constness rule
-            let immutable = typeDetails.method ? 'const ' : '';
-            return immutable + 'char *';
+            //let immutable = typeDetails.method ? 'const ' : '';
+            return 'const char *' + dblIndirection;
         } else if (TypeMapper.builtins.includes(n)) {
             return n;
+        } else {
+            n = TypeMapper.simpleMap[n];
+            if (n) {
+                return n;
+            }
         }
         // Fail gracefully
         const member = typeDetails.method ? `method ${typeDetails.method}` :
@@ -55,14 +60,14 @@ export class TypeMapper {
     ]
 
     static simpleMap = {
-        'GLint | GLboolean': 'GLint'
+        'GLint | GLboolean': 'GLint',
+        'Float32List': 'const GLfloat *',
+        'Int32List': 'const gint32 *',
+        'Uint32List': 'const guint32 *',
     }
 
 }
 /* TODO:
-        'Float32List',
-        'Int32List',
-        'Uint32List',
         'ArrayBufferView',
         'string',
         'any',
