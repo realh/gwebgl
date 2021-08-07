@@ -12,35 +12,37 @@ export class TypeMapper {
     mapType(typeDetails) {
         let n = typeDetails.type.name;
         const dblIndirection = n.endsWith('[]') ? '*' : '';
+        const m = TypeMapper.simpleMap[n];
+        if (dblIndirection) {
+            n = n.substring(0, n.length - 2);
+        }
         if (n.startsWith('WebGL') || n.startsWith('EXT_') ||
                     n.startsWith('OES_') || n.startsWith('WEBGL_'))
         {
-            return `Gwebgl${n} *${dblIndirection}`;
+            n = `Gwebgl${n} *${dblIndirection}`;
         } else if (n.startsWith('"') || n.startsWith('string')) {
             // TODO: There may be exceptions to this simple constness rule
             //let immutable = typeDetails.method ? 'const ' : '';
-            return 'const char *' + dblIndirection;
+            n = 'const char *' + dblIndirection;
         } else if (TypeMapper.builtins.includes(n)) {
-            return n;
+        } else if (m) {
+            n = m;
         } else {
-            n = TypeMapper.simpleMap[n];
-            if (n) {
-                return n;
+            // Fail gracefully
+            const member = typeDetails.method ? `method ${typeDetails.method}` :
+                `property ${varName}`;
+            let e = `Can't process ${member} of ${typeDetails.memberOf}:- `;
+            if (typeDetails.method) {
+                if (typeDetails.varName) {
+                    e + `arg ${typeDetails.varName} has `
+                } else {
+                    e + `returns `
+                }
             }
+            e += `unrecognised type ${typeDetails.type.name}`;
+            throw new Error(e);
         }
-        // Fail gracefully
-        const member = typeDetails.method ? `method ${typeDetails.method}` :
-            `property ${varName}`;
-        let e = `Can't process ${member} of ${typeDetails.memberOf}:- `;
-        if (typeDetails.method) {
-            if (typeDetails.varName) {
-                e + `arg ${typeDetails.varName} has `
-            } else {
-                e + `returns `
-            }
-        }
-        e += `unrecognised type ${typeDetails.type.name}`;
-        throw new Error(e);
+        return n + dblIndirection;
     }
 
     static builtins = [
@@ -64,14 +66,11 @@ export class TypeMapper {
         'Float32List': 'const GLfloat *',
         'Int32List': 'const gint32 *',
         'Uint32List': 'const guint32 *',
+        'ArrayBufferView': 'GBytes *',
+        'any': 'void *',
+        'TexImageSource': 'GdkPixbuf *',
+        'BufferSource': 'GBytes *',
+        'HTMLCanvasElement | OffscreenCanvas': 'GtkGLArea *',
     }
 
 }
-/* TODO:
-        'ArrayBufferView',
-        'string',
-        'any',
-        'TexImageSource',
-        'BufferSource',
-        'HTMLCanvasElement | OffscreenCanvas',
-*/
