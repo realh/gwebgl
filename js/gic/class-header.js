@@ -25,7 +25,7 @@ export class HeaderClassBuilder extends ClassBuilder {
         ];
         if (!this.glHeaderName) {
             inc.push('#ifndef GL_GLES_PROTOTYPES',
-                '#include <GLES3/gl3.h>',
+                '#include <GLES2/gl2.h>',
                 '#endif'
             );
         } else {
@@ -46,7 +46,7 @@ export class HeaderClassBuilder extends ClassBuilder {
         const lines = [`#define ${nmSpcUpper}_TYPE_${unqClsNmUpper} ` +
             `${this.classNameLower}_get_type()`];
         const derivable = this.final ? "FINAL" : "DERIVABLE";
-        lines.push(`G_DEFINE_${derivable}_TYPE(` +
+        lines.push(`G_DECLARE_{derivable}_TYPE(` +
             `${this.gClassName}, ${this.classNameLower}, ` +
             `${nmSpcUpper}, ${unqClsNmUpper}, ${this.parent})`);
         if (!this.final) {

@@ -40,6 +40,10 @@ export class NameTransformer {
         return this.separateCamels(name).toUpperCase();
     }
 
+    fileBaseName(name) {
+        return this.loweredClassName(name).replaceAll('_', '-');
+    }
+
     // Both names are from the JS/TS API.
     methodNameFromJS(methodName, className) {
         return `${this.loweredClassName(className)}_${methodName}`;
@@ -59,7 +63,7 @@ export class NameTransformer {
         if (returnType.includes('/*')) {
             comment = '// ';
         }
-        const args = [];
+        const args = [`${this.classNameFromJS(className)} *self`];
         for (let a of method.args) {
             const td = {
                 type: a.type,
