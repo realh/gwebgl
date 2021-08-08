@@ -80,4 +80,24 @@ export class TypeMapper {
         'HTMLCanvasElement | OffscreenCanvas': 'GtkGLArea *',
     }
 
+    // As used in g_value_set_*/_get_* etc
+    static gTypes = {
+        'GLenum': 'uint',
+        'GLuint': 'uint',
+        'GLintptr': 'int64',
+        'GLsizeiptr': 'int64',
+        'GLint': 'int',
+        'GLbitfield': 'uint',
+        'GLfloat': 'float',
+        'GLuint64': 'uint64',
+        'GLsizei': 'int',
+        'GLboolean': 'boolean',
+        'GLint64': 'int64',
+        'GLclampf': 'float',
+        'boolean': 'boolean',
+        'GLint | GLboolean': 'int',
+        'any': 'pointer',
+        'HTMLCanvasElement | OffscreenCanvas': 'object',
+        'string': 'string',
+    }
 }

@@ -12,10 +12,11 @@ export class HeaderClassBuilder extends ClassBuilder {
     }
 
     buildClass(name, members, final, parent) {
-        this.gClassName = this.nameTx.classNameFromJS(this.name);
-        this.classNameLower = this.nameTx.loweredClassName(this.name);
+        this.gClassName = this.nameTx.classNameFromJS(name);
+        this.classNameLower = this.nameTx.loweredClassName(name);
+        this.classNameUpper = this.nameTx.upperedClassName(name);
         parent = parent || 'GObject';
-        if (final) {
+        if (!final) {
             this.priv = `    ${this.gClassName}Private *priv = ` +
                 `${this.classNameLower}_get_instance_private(self);`;
         }
@@ -46,7 +47,11 @@ export class HeaderClassBuilder extends ClassBuilder {
         lines.push(`G_DEFINE_TYPE${withPrivate}(` +
             `${this.gClassName}, ${this.classNameLower}, ` +
             `${parentUpper[0]}_TYPE_${parentUpper.slice(1).join('_')});`, '');
-        // TODO: class_init and init functions
+        // instance init()
+        lines.push('static void ' +
+                this.nameTx.methodNameFromJS('init') + '(' +
+                this.gClassName + ' *self)',
+            '{', '    (void) self', '}', '');
         return lines;
     }
 
@@ -69,12 +74,99 @@ export class HeaderClassBuilder extends ClassBuilder {
                 lines.push('}', '');
             }
         }
+
+        if (this.props) {
+            // enum of indexes
+            lines.push('enum {');
+            let first = true;
+            for (const p of this.props) {
+                let d = '    ' + this.propIndexName(p);
+                if (first) {
+                    d += ' = 1';
+                    first = false;
+                }
+                lines.push(d + ',');
+            }
+            lines.push('    NUM_PROPS', '};', '');
+            lines.push('static GParamSpec *properties[NUM_PROPS] = {NULL};',
+                '');
+            
+            const sap = this.selfAndPriv();
+            
+            // setter if needed
+            let setter = false;
+            for (const p of this.props) {
+                if (!p.construct && !p.readonly) {
+                    continue;
+                }
+                if (!setter) {
+                    lines.push('static void set_property(GObject *object, ' +
+                        'guint prop_id, const GValue *value, ' +
+                        'GParamSpec *pspec)', '{');
+                    lines.push(...sap[0]);
+                    lines.push('    switch (prop_id)', '    {');
+                    setter = true;
+                }
+                lines.push(`        case ${this.propIndexName(p)}:`,
+                    `            ${sap[1]}->${p.name} = ` +
+                    `g_value_get_${this.nameTx.gParamSpecType}(value);`,
+                    `            break;`);
+            }
+            if (setter) {
+                lines.push(...this.closePropSwitch());
+            }
+
+            // getter
+            lines.push('static void get_property(GObject *object, ' +
+                    'guint prop_id, GValue *value, GParamSpec *pspec)', '{');
+            lines.push(...sap[0]);
+            // Avoids a warning if priv/self are unused, harmless if they are
+            line.push('    (void) self;');
+            if (!this.final) {
+                line.push('    (void) priv;');
+            }
+
+            lines.push('    switch (prop_id)', '    {');
+            for (const p of this.props) {
+                const src = p.construct ?
+                    `${sap[1]}->${p.name}` : `GL_${p.name}`;
+                lines.push(`        case ${this.propIndexName(p)}:`,
+                    `g_value_set_${this.nameTx.gParamSpecType}(value, ` +
+                        `${src});`, `            break;`);
+            }
+            lines.push(...this.closePropSwitch());
+        }
+
+        // class_init()
+        lines.push('static void ' +
+                this.nameTx.methodNameFromJS('class_init') + '(' +
+                this.gClassName + 'Class *klass)',
+            '{',
+            '    GObjectClass *oclass = G_OBJECT_CLASS(klass);');
+
+        if (setter) {
+            lines.push(`    oclass->set_property = set_property;`);
+        }
+        if (this.props) {
+            lines.push(`    oclass->get_property = get_property;`);
+        }
+        for (const p of props) {
+            lines.push(`    properties[${this.propIndexName}] = `,
+                ...this.paramSpec(p));
+        }
+        if (this.props) {
+            lines.push('    g_object_class_install_properties(oclass, ' +
+                'N_PROPERTIES, properties);');
+        }
+        lines.push('}');
+
         return lines;
     }
 
     getFunctionDeclarations() {
         const lines = [];
         for (const m of this.methods) {
+            // TODO: Annotation comments
             // TODO: Implement function body
             lines.push(this.nameTx.methodSignature(m, this.name) + ';');
         }
@@ -87,5 +179,48 @@ export class HeaderClassBuilder extends ClassBuilder {
 
     getFooter() {
         return ['G_END_DECLS'];
+    }
+
+    propIndexName(propName) {
+        if (propName.hasOwnProperty('name')) {
+            propName = propName.name;
+        }
+        return 'PROP_' + propName.toUpperCase();
+    }
+
+    paramSpec(prop) {
+        const n = `"${prop.name}"`;
+        const gpst = this.nameTx.gParamSpecType(prop.type);
+        const lines = [`g_param_spec_${gpst}(`,
+            `        ${n}, ${n}, ${n}, `];
+        let minmax = '        ';
+        if (n.includes("int") || n.includes("float")) {
+            const u = gpst.toUpperCase();
+            minmax += `G_MIN${u}, G_MAX${u}, `;
+        }
+        let dflt = prop.construct ? '0' : `GL_` + prop.name;
+        lines.push(minmax + dflt + ',');
+        let flags = prop.construct ?
+            'G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY' : 'G_PARAM_READABLE';
+        lines.push('        ' + flags + ');');
+        return lines;
+    }
+
+    selfAndPriv() {
+        const lines = [`    ${this.gClassName} *self = ` +
+            `${this.classNameUpper}(object);`];
+        if (!this.final) {
+            lines.push(this.priv);
+        }
+        const priv = this.final ? 'self' : 'priv';
+        return [lines, priv];
+    }
+
+    // Also closes the function definition
+    closePropSwitch() {
+        return ['        default:',
+            '            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, ' +
+                'prop_id, pspec);',
+            '            break;', '    }', '}', ''];
     }
 }

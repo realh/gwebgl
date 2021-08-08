@@ -94,4 +94,11 @@ export class NameTransformer {
             return `void * /* ${typeDetails.type.name} */ `;
         }
     }
+
+    gParamSpecType(type) {
+        if (type.hasOwnProperty('name')) {
+            type = type.name;
+        }
+        return TypeMapper.gTypes[type];
+    }
 }
