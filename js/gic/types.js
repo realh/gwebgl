@@ -11,14 +11,16 @@ export class TypeMapper {
     // Returns: A string containing the C typename
     mapType(typeDetails) {
         let n = typeDetails.type.name;
-        const dblIndirection = n.endsWith('[]') ? '*' : '';
+        let dblIndirection = n.endsWith('[]') ? '*' : '';
         const m = TypeMapper.simpleMap[n];
         if (dblIndirection) {
             n = n.substring(0, n.length - 2);
         }
-        if (n.startsWith('WebGL') || n.startsWith('EXT_') ||
-                    n.startsWith('OES_') || n.startsWith('WEBGL_') ||
-                    n.startsWith('ANGLE_'))
+        if (n.startsWith('WebGL'))
+        {
+            n = `Gwebgl${n}`;
+        } else if (n.startsWith('EXT_') || n.startsWith('OES_') ||
+                n.startsWith('WEBGL_') || n.startsWith('ANGLE_'))
         {
             n = `Gwebgl${n} *`;
         } else if (n.startsWith('"') || n.startsWith('string')) {
