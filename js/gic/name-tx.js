@@ -54,6 +54,7 @@ export class NameTransformer {
     // place for it. If a type transformation fails, the result will have a
     // '//' comment prefix.
     methodSignature(method, className) {
+        this.adjustSignature(method, className);
         let comment = '';
         const returnType = this.errorCheckedTypeConversion({
             type: method.returnType,
@@ -71,7 +72,10 @@ export class NameTransformer {
                 method: method.name,
                 argName: a.name
             };
-            const t = this.errorCheckedTypeConversion(td);
+            let t = this.errorCheckedTypeConversion(td);
+            if (a.out) {
+                t += '*';
+            }
             a = `${t}${a.name}`;
             if (a.includes('/*')) {
                 comment = '// ';
@@ -80,6 +84,22 @@ export class NameTransformer {
         }
         const methodName = this.methodNameFromJS(method.name, className)
         return `${comment}${returnType}${methodName}(${args.join(', ')})`;
+    }
+
+    // Some methods have signatures that don't map directly between WebGL
+    // and OpenGL ES
+    adjustSignature(method, className) {
+        if (method.returnType.name == 'WebGLActiveInfo') {
+            method.returnType.name = 'void';
+            this.addOutArg(method, 'size', 'GLint');
+            this.addOutArg(method, 'type', 'GLenum');
+            this.addOutArg(method, 'name', 'string');
+        }
+    }
+
+    addOutArg(method, argName, argType) {
+        method.args.push({name: argName, type: {name: argType, nullable: true},
+            optional: true, out: true});
     }
 
     errorCheckedTypeConversion(typeDetails) {
