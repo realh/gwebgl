@@ -20,7 +20,6 @@ export class HeaderClassBuilder extends ClassBuilder {
     getHeader() {
         let inc = [`#ifndef ${this.sentinel}`,
             `#define ${this.sentinel}`,
-            '#endif',
             ''
         ];
         if (!this.glHeaderName) {
