@@ -55,9 +55,6 @@ export class NameTransformer {
     // '//' comment prefix.
     methodSignature(method, className) {
         let comment = '';
-        if (method.name == 'getExtension') {
-            comment = '// ';
-        }
         if (!this.adjustSignature(method, className)) {
             comment = '// ';
         }
@@ -95,6 +92,9 @@ export class NameTransformer {
     // and OpenGL ES. This modifies the method in place and returns it. If it
     // returns null the method is not supported.
     adjustSignature(method, className) {
+        if (NameTransformer.methodBlacklist.includes(method.name)) {
+            return null;
+        }
         const rt = method.returnType.name;
         if (rt == 'GwebglWebGLContextAttributes') {
             return null;
@@ -132,4 +132,6 @@ export class NameTransformer {
         }
         return TypeMapper.gTypes[type];
     }
+
+    static methodBlacklist = ['getContextAttributes', 'getExtension'];
 }
