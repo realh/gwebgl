@@ -1,7 +1,7 @@
 import {ClassBuilder} from '../class-builder.js';
 import {NameTransformer} from './name-tx.js';
 
-export class HeaderClassBuilder extends ClassBuilder {
+export class ClassImplementationBuilder extends ClassBuilder {
     // glHeaderName should be 'GLES2/gl2.h' or 'GLES3/gl3.h' or nully. If nully
     // it will generate a conditional include that can be overriden by including
     // either of the above before the header this generates.
