@@ -2,10 +2,7 @@ import {ClassBuilder} from '../class-builder.js';
 import {NameTransformer} from './name-tx.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
-    // glHeaderName should be 'GLES2/gl2.h' or 'GLES3/gl3.h' or nully. If nully
-    // it will generate a conditional include that can be overriden by including
-    // either of the above before the header this generates.
-    constructor(glHeaderName) {
+    constructor() {
         super();
         this.glHeaderName = glHeaderName;
         this.nameTx = new NameTransformer();
@@ -166,9 +163,9 @@ export class ClassImplementationBuilder extends ClassBuilder {
     getFunctionDeclarations() {
         const lines = [];
         for (const m of this.methods) {
-            // TODO: Annotation comments
-            // TODO: Implement function body
+            lines.push(...this.nameTx.methodSignature(m, this.name, true));
             lines.push(this.nameTx.methodSignature(m, this.name) + ';');
+            // TODO: Implement function body
         }
         return lines;
     }
@@ -178,7 +175,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     getFooter() {
-        return ['G_END_DECLS'];
+        return [];
     }
 
     propIndexName(propName) {

@@ -53,7 +53,7 @@ export class NameTransformer {
     // Not strictly just a name transformation, but this is the most convenient
     // place for it. If a type transformation fails, the result will have a
     // '//' comment prefix.
-    methodSignature(method, className) {
+    methodSignature(method, className, annotations = false) {
         let comment = '';
         if (!this.adjustSignature(method, className)) {
             comment = '// ';
@@ -65,6 +65,11 @@ export class NameTransformer {
         });
         if (returnType.includes('/*')) {
             comment = '// ';
+        }
+        const methodName = this.methodNameFromJS(method.name, className)
+        let lines = [];
+        if (annotations && !comment) {
+            lines = ['/**', ` * ${methodName}: (method):`];
         }
         const args = [`${this.classNameFromJS(className)} *self`];
         for (let a of method.args) {
@@ -78,14 +83,50 @@ export class NameTransformer {
             if (a.out) {
                 t += '*';
             }
+            if (lines) {
+                let s = ` * @${a.name}:`;
+                if (a.out) {
+                    s += ' (out)';
+                    if (a.optional) {
+                        s += ' (optional)';
+                    }
+                }
+                s = this.typeAnnotation(s, a.type);
+                lines.push(s);
+            }
             a = `${t}${a.name}`;
             if (a.includes('/*')) {
                 comment = '// ';
             }
             args.push(a);
         }
-        const methodName = this.methodNameFromJS(method.name, className)
-        return `${comment}${returnType}${methodName}(${args.join(', ')})`;
+        if (method.returnType.name != 'void' && lines) {
+            lines.push(
+                ` * Returns:${this.typeAnnotation('', method.returnType)}`);
+        }
+        if (comment) {
+            lines = [];
+        } else if (lines) {
+            lines.push(' */');
+        }
+        return annotations ? lines :
+            `${comment}${returnType}${methodName}(${args.join(', ')})`;
+    }
+
+    typeAnnotation(s, type) {
+        //let etype = TypeMapper.gArrayEquivalents[a.type.name];
+        if (type.nullable) {
+            s += ' (nullable)';
+        }
+        if (type.name.endsWith('[]')) {
+            let etype = TypeMapper.gTypes[
+                    type.name.substring(type.name - 2)];
+            s += ` (array) (element-type ${etype})`;
+        }
+        if (s && !s.endsWith(':')) {
+            s += ':';
+        }
+        return s;
     }
 
     // Some methods have signatures that don't map directly between WebGL
@@ -118,6 +159,14 @@ export class NameTransformer {
     addOutArg(method, argName, argType) {
         method.args.push({name: argName, type: {name: argType, nullable: true},
             optional: true, out: true});
+    }
+
+    methodAnnotations(method, className) {
+        if (!this.adjustSignature(method, className)) {
+            return [];
+        }
+        const lines = ['/**'];
+
     }
 
     errorCheckedTypeConversion(typeDetails) {

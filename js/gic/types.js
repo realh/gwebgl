@@ -102,4 +102,11 @@ export class TypeMapper {
         'HTMLCanvasElement | OffscreenCanvas': 'object',
         'string': 'string',
     }
+
+    // For use in element-type annotations when they aren't in gTypes
+    static gArrayEquivalents = {
+        'Float32List': 'float',
+        'Int32List': 'int32',
+        'Uint32List': 'uint32',
+    }
 }
