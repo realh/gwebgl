@@ -96,14 +96,21 @@ export class NameTransformer {
             return null;
         }
         const rt = method.returnType.name;
-        if (rt == 'GwebglWebGLContextAttributes') {
-            return null;
-        }
-        if (rt == 'WebGLActiveInfo') {
-            method.returnType.name = 'void';
-            this.addOutArg(method, 'size', 'GLint');
-            this.addOutArg(method, 'type', 'GLenum');
-            this.addOutArg(method, 'name', 'string');
+        switch (rt) {
+            case 'GwebglWebGLContextAttributes':
+                return null;
+            case 'WebGLActiveInfo':
+                method.returnType.name = 'void';
+                this.addOutArg(method, 'size', 'GLint');
+                this.addOutArg(method, 'type', 'GLenum');
+                this.addOutArg(method, 'name', 'string');
+                break;
+            case 'WebGLShaderPrecisionFormat':
+                method.returnType.name = 'void';
+                this.addOutArg(method, 'range_min', 'GLint');
+                this.addOutArg(method, 'range_max', 'GLint');
+                this.addOutArg(method, 'precision', 'GLint');
+                break;
         }
         return method;
     }
