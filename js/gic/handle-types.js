@@ -10,8 +10,8 @@ extern "C" {
 ${webglAlias('Program')}
 ${webglAlias('Shader')}
 ${webglAlias('Buffer')}
-${webglAlias('FrameBuffer')}
-${webglAlias('RenderBuffer')}
+${webglAlias('Framebuffer')}
+${webglAlias('Renderbuffer')}
 ${webglAlias('Texture')}
 ${webglAlias('UniformLocation', 'int')}
 
