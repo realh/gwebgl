@@ -169,7 +169,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
         }
         if (this.props) {
             lines.push('    g_object_class_install_properties(oclass, ' +
-                'N_PROPERTIES, properties);');
+                'NUM_PROPS, properties);');
         }
         lines.push('}');
 
