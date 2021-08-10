@@ -1,10 +1,10 @@
+import {consoleLog} from '../sys.js';
 import {ClassBuilder} from '../class-builder.js';
 import {NameTransformer} from './name-tx.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
         super();
-        this.glHeaderName = glHeaderName;
         this.nameTx = new NameTransformer();
     }
 
@@ -21,7 +21,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     getHeader() {
-        return [`#include <gwebgl/${this.nameTx.fileBaseName(this.name)}>`];
+        return [`#include <gwebgl/${this.nameTx.fileBaseName(this.name)}.h>`];
     }
 
     getClassOpener() {
@@ -46,9 +46,23 @@ export class ClassImplementationBuilder extends ClassBuilder {
             `${parentUpper[0]}_TYPE_${parentUpper.slice(1).join('_')});`, '');
         // instance init()
         lines.push('static void ' +
-                this.nameTx.methodNameFromJS('init') + '(' +
+                this.nameTx.methodNameFromJS('init', this.name) + '(' +
                 this.gClassName + ' *self)',
-            '{', '    (void) self', '}', '');
+            '{', '    (void) self;', '}', '');
+        return lines;
+    }
+
+    getPropertyBackings() {
+        const lines = [];
+        for (const p of this.props) {
+            if (p.construct) {
+                const t = this.errorCheckedTypeConversion({
+                    type: p.type,
+                    memberOf: this.name
+                });
+                lines.push(`    ${t}${p.name};`);
+            }
+        }
         return lines;
     }
 
@@ -72,6 +86,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
             }
         }
 
+        let setter = false;
         if (this.props) {
             // enum of indexes
             lines.push('enum {');
@@ -91,7 +106,6 @@ export class ClassImplementationBuilder extends ClassBuilder {
             const sap = this.selfAndPriv();
             
             // setter if needed
-            let setter = false;
             for (const p of this.props) {
                 if (!p.construct && !p.readonly) {
                     continue;
@@ -105,8 +119,9 @@ export class ClassImplementationBuilder extends ClassBuilder {
                     setter = true;
                 }
                 lines.push(`        case ${this.propIndexName(p)}:`,
-                    `            ${sap[1]}->${p.name} = ` +
-                    `g_value_get_${this.nameTx.gParamSpecType}(value);`,
+                    `            ${sap[1]}->${p.name} = `,
+                    `            g_value_get_` +
+                    `${this.nameTx.gParamSpecType(p.type)}(value);`,
                     `            break;`);
             }
             if (setter) {
@@ -118,9 +133,9 @@ export class ClassImplementationBuilder extends ClassBuilder {
                     'guint prop_id, GValue *value, GParamSpec *pspec)', '{');
             lines.push(...sap[0]);
             // Avoids a warning if priv/self are unused, harmless if they are
-            line.push('    (void) self;');
+            lines.push('    (void) self;');
             if (!this.final) {
-                line.push('    (void) priv;');
+                lines.push('    (void) priv;');
             }
 
             lines.push('    switch (prop_id)', '    {');
@@ -128,15 +143,16 @@ export class ClassImplementationBuilder extends ClassBuilder {
                 const src = p.construct ?
                     `${sap[1]}->${p.name}` : `GL_${p.name}`;
                 lines.push(`        case ${this.propIndexName(p)}:`,
-                    `g_value_set_${this.nameTx.gParamSpecType}(value, ` +
-                        `${src});`, `            break;`);
+                    `            g_value_set_` +
+                    `${this.nameTx.gParamSpecType(p.type)}(value, ${src});`,
+                    `            break;`);
             }
             lines.push(...this.closePropSwitch());
         }
 
         // class_init()
         lines.push('static void ' +
-                this.nameTx.methodNameFromJS('class_init') + '(' +
+                this.nameTx.methodNameFromJS('class_init', this.name) + '(' +
                 this.gClassName + 'Class *klass)',
             '{',
             '    GObjectClass *oclass = G_OBJECT_CLASS(klass);');
@@ -147,8 +163,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
         if (this.props) {
             lines.push(`    oclass->get_property = get_property;`);
         }
-        for (const p of props) {
-            lines.push(`    properties[${this.propIndexName}] = `,
+        for (const p of this.props) {
+            lines.push(`    properties[${this.propIndexName(p)}] = `,
                 ...this.paramSpec(p));
         }
         if (this.props) {
@@ -188,12 +204,13 @@ export class ClassImplementationBuilder extends ClassBuilder {
     paramSpec(prop) {
         const n = `"${prop.name}"`;
         const gpst = this.nameTx.gParamSpecType(prop.type);
-        const lines = [`g_param_spec_${gpst}(`,
+        const lines = [`    g_param_spec_${gpst}(`,
             `        ${n}, ${n}, ${n}, `];
         let minmax = '        ';
-        if (n.includes("int") || n.includes("float")) {
+        if (gpst.includes("int") || gpst.includes("float")) {
             const u = gpst.toUpperCase();
-            minmax += `G_MIN${u}, G_MAX${u}, `;
+            const min = gpst.includes('uint') ? 0 : 'G_MIN' + u;
+            minmax += `${min}, G_MAX${u}, `;
         }
         let dflt = prop.construct ? '0' : `GL_` + prop.name;
         lines.push(minmax + dflt + ',');

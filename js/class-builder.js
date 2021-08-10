@@ -43,6 +43,7 @@ export class ClassBuilder {
     }
 
     process() {
+        this.filterProps();
         this.lines = this.getHeader();
         this.lines.push('', ...this.getClassDefinition());
         this.lines.push('', ...this.getFooter());
@@ -54,6 +55,11 @@ export class ClassBuilder {
         lines.push(...this.getFunctionDeclarations());
         lines.push(...this.getClassCloser());
         return lines;
+    }
+
+    // Removes properties that have no equivalent in OpenGL ES
+    filterProps() {
+        this.props = this.props.filter(p => !p.name.includes('WEBGL'));
     }
 
     // abstract getHeader(): string[]

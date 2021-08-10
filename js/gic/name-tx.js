@@ -16,8 +16,12 @@ export class NameTransformer {
     }
 
     // This could go a bit wrong with groups of more than one capital, but that
-    // should just make the C a bit ugly without breaking anything.
+    // should just make the C a bit ugly without breaking anything. We'll make
+    // an exception for GObject though.
     separateCamels(name) {
+        if (name == 'GObject') {
+            return 'G_OBJECT';
+        }
         let s = 'gwebgl_';
         // We want to treat 'WebGL' as one word.
         if (name.startsWith('WebGL2')) {
@@ -41,7 +45,8 @@ export class NameTransformer {
     }
 
     fileBaseName(name) {
-        return this.loweredClassName(name).replaceAll('_', '-');
+        return this.loweredClassName(name).replaceAll('_', '-').
+            replace(/gwebgl-webgl2?-/, '');
     }
 
     // Both names are from the JS/TS API.
