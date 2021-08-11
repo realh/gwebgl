@@ -171,7 +171,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
             lines.push('    g_object_class_install_properties(oclass, ' +
                 'NUM_PROPS, properties);');
         }
-        lines.push('}');
+        lines.push('}', '');
 
         return lines;
     }
@@ -179,11 +179,59 @@ export class ClassImplementationBuilder extends ClassBuilder {
     getFunctionDeclarations() {
         const lines = [];
         for (const m of this.methods) {
+            const sig = this.nameTx.methodSignature(m, this.name);
+            if (sig.startsWith('//')) { continue; }
             lines.push(...this.nameTx.methodSignature(m, this.name, true));
-            lines.push(this.nameTx.methodSignature(m, this.name) + ';');
-            // TODO: Implement function body
+            lines.push(sig, '{');
+            const mb = this.adaptMethodForBody(m);
+            lines.push(...this.methodBody(mb));
+            lines.push('}', '');
         }
         return lines;
+    }
+
+    methodBody(m) {
+        const lines = [];
+        lines.push('    (void) self;');
+        const create = m.args.length == 2 && m.args[1].name == '&a';
+        if (create) {
+            lines.push('    GLuint a;');
+        }
+        let s = m.returnType.name == 'void' ? '    ' : '    return ';
+        s += this.webGLMethodNameToGLESFunction(m) + '(';
+        s += m.args.map(a => a.name).join(', ');
+        s += ');';
+        lines.push(s);
+        if (create) {
+            lines.push('    return a;');
+        }
+        return lines;
+    }
+
+    adaptMethodForBody(m) {
+        m = {...m};
+        if (m.name == 'clearDepth') {
+            m.name = 'clearDepthf';
+        } else if (m.name.includes('create') &&
+            m.name != 'createProgram' && m.name != 'createShader')
+        {
+            m.name = m.name.replace('create', 'gen') + 's';
+            m.returnType = {name: 'void'};
+            m.args = [{name: '1'}, {name: '&a'}];
+        } else if (m.name.includes('delete') &&
+            m.name != 'deleteProgram' && m.name != 'deleteShader')
+        {
+            m.name += 's';
+            m.args = [{name: '1'}, {name: `&${m.args[0].name}`}];
+        }
+        return m;
+    }
+
+    webGLMethodNameToGLESFunction(m) {
+        if (m.hasOwnProperty('name')) {
+            m = m.name;
+        }
+        return `gl${m.substring(0, 1).toUpperCase()}${m.substring(1)}`;
     }
 
     getClassCloser() {
