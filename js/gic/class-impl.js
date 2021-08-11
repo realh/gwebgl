@@ -223,6 +223,13 @@ export class ClassImplementationBuilder extends ClassBuilder {
         {
             m.name += 's';
             m.args = [{name: '1'}, {name: `&${m.args[0].name}`}];
+        } else {
+            m.args = [...m.args];
+            for (const a of m.args) {
+                if (a.type.name == 'GLintptr') {
+                    a.name = '(const void *) ' + a.name;
+                }
+            }
         }
         return m;
     }
