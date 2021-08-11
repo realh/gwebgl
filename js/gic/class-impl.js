@@ -58,25 +58,30 @@ class AllocatedResultGenerator {
 
     getResultAdjusterLines(method) {
         const bufLength = this.getAllocSize(method, 'bufLength');
-        const lines = [
-            `    if (${this.bufOutArg})`,
-            '    {',
-            '        if (bufLength < bufSize)',
-            '        {',
-            `            buf = g_realloc(buf, ${bufLength});`,
-            '        }',
-        ];
-        if (this.terminated) {
-            lines.push('        buf[bufLength] = 0;');
+        let lines = [];
+        let indent = '    ';
+        if (this.bufOutArg) {
+            lines.push(`    if (${this.bufOutArg})`, '    {');
+            indent += '    ';
         }
         lines.push(
-            `        *${this.bufOutArg} = buf;`,
-            '    }',
-            '    else',
-            '    {',
-            '        g_free(buf);',
-            '    }',
+            `${indent}if (bufLength < bufSize)`,
+            `${indent}{`,
+            `${indent}    buf = g_realloc(buf, ${bufLength});`,
+            `${indent}}`,
         );
+        if (this.terminated) {
+            lines.push(`${indent}buf[bufLength] = 0;`);
+        }
+        if (this.bufOutArg) {
+            lines.push(`${indent}*${this.bufOutArg} = buf;`,
+                '    }',
+                '    else',
+                '    {',
+                '        g_free(buf);',
+                '    }',
+            );
+        }
         return lines
     }
 
@@ -95,6 +100,25 @@ class ShaderActiveVarAllocatedResultGenerator extends AllocatedResultGenerator {
         this.addBufferSizeArgs(m);
         m.args[6] = {name: 'buf'};
         return m;
+    }
+}
+
+class ReturnedAllocatedResultGenerator extends AllocatedResultGenerator {
+    constructor(bufSizeAttribute, elementType, sizeQueryMethod) {
+        super(1, [{name: 'bufSize'}, {name: '&bufLength'}], elementType, true,
+            bufSizeAttribute, sizeQueryMethod);
+    }
+
+    adaptMethod(method) {
+        const m = {...method};
+        this.addBufferSizeArgs(m);
+        m.returnType = {name: 'void'};
+        m.args.push({name: 'buf'});
+        return m;
+    }
+
+    getResultAdjusterLines(method) {
+        return [...super.getResultAdjusterLines(method), '    return buf;'];
     }
 }
 
@@ -402,6 +426,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
             'ACTIVE_ATTRIBUTE_MAX_LENGTH'),
         getActiveUniform: new ShaderActiveVarAllocatedResultGenerator(
             'ACTIVE_UNIFORM_MAX_LENGTH'),
+        getAttachedShaders: new ReturnedAllocatedResultGenerator(
+            'ATTACHED_SHADERS', 'GLuint', 'glGetProgramiv'),
     }
 }
 
