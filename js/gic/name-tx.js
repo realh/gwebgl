@@ -107,8 +107,10 @@ export class NameTransformer {
             args.push(a);
         }
         if (method.returnType.name != 'void' && lines) {
+            const a = this.typeAnnotation('', method.returnType,
+                ' zero-terminated=1');
             lines.push(
-                ` * Returns:${this.typeAnnotation('', method.returnType)}`);
+                ` * Returns:${a}`);
         }
         if (comment) {
             lines = [];
@@ -119,7 +121,7 @@ export class NameTransformer {
             `${comment}${returnType}${methodName}(${args.join(', ')})`;
     }
 
-    typeAnnotation(s, type) {
+    typeAnnotation(s, type, lengthClause = '') {
         if (type.nullable && !handleTypes.includes(type.name)) {
             s += ' (nullable)';
         }
@@ -128,11 +130,11 @@ export class NameTransformer {
         }
         if (type.name.endsWith('[]')) {
             const t = type.name.substring(0, type.name.length - 2);
-            let etype = TypeMapper.gElementTypes[ t];
+            let etype = TypeMapper.gElementTypes[t];
             if (!etype) {
                 throw new Error(`TypeMapper.gElementTypes.${t} is undefined`);
             }
-            s += ` (array) (element-type ${etype})`;
+            s += ` (array${lengthClause}) (element-type ${etype})`;
         }
         if (s && !s.endsWith(':')) {
             s += ':';
