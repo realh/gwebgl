@@ -33,10 +33,11 @@ export class AllocatedResultGenerator {
     }
 
     getSizeQueryLines(method) {
+        const argName = method.args[0].name;
         return [
             '    GLint bufSize;',
             '    GLsizei bufLength;',
-            `    ${this.sizeQueryMethod}(program, ` +
+            `    ${this.sizeQueryMethod}(${argName}, ` +
                     `GL_${this.bufSizeAttribute}, &bufSize);`,
             ];
     }
@@ -121,3 +122,71 @@ AllocatedResultGenerator
         return [...super.getResultAdjusterLines(method), '    return buf;'];
     }
 }
+
+export class ReturnOutParameter {
+    // resultType is a string
+    constructor(resultType) {
+        this.resultType = resultType;
+    }
+
+    getAllocatorLines(method) {
+        return [`    ${this.resultType} result;`];
+    }
+
+    adaptMethod(method) {
+        const m = {...method};
+        m.returnType = {name: 'void'};
+        m.args.push({name: '&result'});
+        return m;
+    }
+
+    getResultAdjusterLines(method) {
+        return ['    return result;'];
+    }
+}
+
+export class ShaderPrecisionFixer {
+    getAllocatorLines(method) {
+        return ['    GLint range[2];'];
+    }
+
+    adaptMethod(method) {
+        const m = {...method};
+        m.args.splice(3, 1);
+        m.args[2] = {name: 'range'};
+        return m;
+    }
+
+    getResultAdjusterLines(method) {
+        return ['    if (range_min) { *range_min = range[0]; }',
+               '    if (range_max) { *range_max = range[1]; }'];
+    }
+}
+
+export class StringGetter {
+    constructor(asArray, enumName) {
+        this.asArray = asArray;
+        this.enumName = enumName;
+    }
+
+    getAllocatorLines(method) {
+        return ['    const GLubyte *result ='];
+    }
+
+    adaptMethod(method) {
+        return {
+            name: 'getString',
+            returnType: {name: 'void'},
+            args: [{name: 'GL_' + this.enumName}]
+        };
+    }
+
+    getResultAdjusterLines(method) {
+        if (this.asArray) {
+            return ['    return g_strsplit((const char *) result, " ", 0);'];
+        } else {
+            return ['    return (const char *) result;'];
+        }
+    }
+}
+

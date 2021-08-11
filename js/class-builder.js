@@ -25,6 +25,8 @@ export class ClassBuilder {
                 this.methods.push(m);
             }
         }
+        const webgl2 = name.includes('WebGL2');
+        this.processParameterGetters(webgl2);
         // Sort to make sure overloads appear consecutively
         const sorter = (a, b) => {
             a = a.name;
@@ -76,6 +78,47 @@ export class ClassBuilder {
             });
         }
     }
+
+    // webgl2 is true for webgl2
+    processParameterGetters(webgl2) {
+        const changedMethods = [];
+        for (let m of this.methods) {
+            const nm = m.name;
+            if (ClassBuilder.ivAndi64vGetters.includes(nm) && webgl2) {
+                const m2 = {...m};
+                m2.name += 'i64v';
+                m2.returnType.name = 'GLint64';
+                changedMethods.push(m2);
+                // TODO: i64v methods have to be added to
+                // WebGL2RenderingContextBase
+            } else if (ClassBuilder.ivAndfvGetters.includes(nm)) {
+                const m2 = {...m};
+                m2.name += 'fv';
+                m2.returnType.name = 'GLfloat';
+                changedMethods.push(m2);
+            }
+            if (ClassBuilder.ivAndi64vGetters.includes(nm) ||
+                ClassBuilder.ivGetters.includes(nm) ||
+                ClassBuilder.ivAndfvGetters.includes(nm))
+            {
+                m.name += 'iv';
+                m.returnType.name = 'GLint';
+            } else if (ClassBuilder.ivGettersStripParameter.includes(nm)) {
+                m.name = nm.replace('Parameter', '') + 'iv';
+                m.returnType.name = 'GLint';
+            }
+            changedMethods.push(m);
+        }
+        this.methods = changedMethods;
+    }
+
+    static ivAndi64vGetters = ['getBufferParameter'];
+    static ivAndfvGetters = ['getTexParameter'];
+
+    static ivGetters = ['getFramebufferAttachmentParameter',
+        'getRenderbufferParameter'];
+    static ivGettersStripParameter = ['getProgramParameter',
+        'getShaderParameter'];
 
     // abstract getHeader(): string[]
     // abstract getclassOpener(): string[]

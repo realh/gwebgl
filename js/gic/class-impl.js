@@ -2,7 +2,8 @@ import {consoleLog} from '../sys.js';
 import {ClassBuilder} from '../class-builder.js';
 import {NameTransformer} from './name-tx.js';
 import {ShaderActiveVarAllocatedResultGenerator,
-    ReturnedAllocatedResultGenerator} from './result-buffers.js';
+    ReturnedAllocatedResultGenerator, ReturnOutParameter,
+    ShaderPrecisionFixer, StringGetter} from './result-buffers.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
@@ -199,7 +200,14 @@ export class ClassImplementationBuilder extends ClassBuilder {
         if (create) {
             lines.push('    GLuint a;');
         }
-        const alloc = ClassImplementationBuilder.getters[m.name];
+        let alloc = m.name == 'getShaderPrecisionFormat' ?
+            new ShaderPrecisionFixer() : null;
+        if (!alloc) {
+            alloc = ClassImplementationBuilder.getters[m.name];
+        }
+        if (!alloc) {
+            alloc = this.getParameterGetterFixer(m);
+        }
         if (alloc) {
             lines.push(...alloc.getAllocatorLines(m));
             m = alloc.adaptMethod(m);
@@ -216,6 +224,24 @@ export class ClassImplementationBuilder extends ClassBuilder {
             lines.push('    return a;');
         }
         return lines;
+    }
+
+    getParameterGetterFixer(m) {
+        if (m.hasOwnProperty('name')) {
+            m = m.name;
+        }
+        if (m.startsWith('get') &&
+            (m.includes('Parameter') || m.endsWith('iv')))
+        {
+            let resultType = 'GLint';
+            if (m.endsWith('i64v')) {
+                resultType = 'GLint64';
+            } else if (m.endsWith('fv')) {
+                resultType = 'GLfloat';
+            }
+            return new ReturnOutParameter(resultType);
+        }
+        return null;
     }
 
     adaptMethodForBody(m) {
@@ -310,38 +336,12 @@ export class ClassImplementationBuilder extends ClassBuilder {
             'ACTIVE_UNIFORM_MAX_LENGTH'),
         getAttachedShaders: new ReturnedAllocatedResultGenerator(
             'ATTACHED_SHADERS', 'GLuint', 'glGetProgramiv'),
+        getProgramInfoLog: new ReturnedAllocatedResultGenerator(
+            'INFO_LOG_LENGTH', 'char', 'glGetProgramiv'),
+        getShaderInfoLog: new ReturnedAllocatedResultGenerator(
+            'INFO_LOG_LENGTH', 'char', 'glGetShaderiv'),
+        getShaderSource: new ReturnedAllocatedResultGenerator(
+            'SHADER_SOURCE_LENGTH', 'char', 'glGetShaderiv'),
+        getSupportedExtensions: new StringGetter(true, 'EXTENSIONS'),
     }
 }
-
-/*
-class AllocatedResultGenerator {
-    // addBufferSizeArgsAt: Index in args at which to add bufferSizeArgs
-    // bufferSizeArgs: [{name: string}]
-    // nulls: Array of indexes of args that should be replaced with null
-    //        when querying; indexes are after size args have been added
-    // elementType: Type name (in C) of allocated buffer members
-    // terminated: Whether allocated buffer should have an additional element
-    //             for a 0-terminator
-    constructor(addBufferSizeArgsAt, bufferSizeArgs, nulls) {
-        this.addBufferSizeArgsAt = addBufferSizeArgsAt;
-        this.bufferSizeArgs = bufferSizeArgs;
-        this.nulls = nulls;
-        this.elementType = elementType;
-        this.terminated = terminated;
-    }
-
-    adaptMethodForQueryingSize(method) {
-        const m = {...method};
-        this.addBufferSizeArgs(m);
-        for (const i of this.nulls) {
-            m.args[i] = {name: 'null'};
-        }
-        return m;
-    }
-
-    addBufferSizeArgs(m) {
-        m.args = [...method.args];
-        m.args.splice(this.addBufferSizeArgsAt, 0, ...this.bufferSizeArgs);
-    }
-}
-*/
