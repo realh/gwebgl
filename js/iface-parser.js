@@ -7,7 +7,7 @@ import { consoleLog } from './sys.js';
 // { name: string; args: {name: string; type: type, optional: boolean}[];
 //   returnType: type; }
 // where type is:
-// { name: string, nullable: boolean }
+// { name: string, nullable: boolean, transfer?: 'full' | 'none' }
 // type.name may be 'void'
 export function parseInterface(lines) {
     if (typeof lines == 'string') { lines = lines.split('\n'); }
@@ -59,13 +59,16 @@ function parseType(typeStr) {
             typeStr = union.join(' | ');
         }
     }
-    return { name: typeStr, nullable };
+    return { name: typeStr, nullable: nullable };
 }
 
 function parseMethod(ln) {
     const [name, tail] = ln.split('(', 2);
     let [args, ret] = tail.split('):');
     ret = parseType(ret.trim());
+    if (ret.name == 'string') {
+        ret.transfer = 'full';
+    }
     args = args.trim();
     const parsedArgs = [];
     if (args) {

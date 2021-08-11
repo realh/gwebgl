@@ -1,5 +1,6 @@
 import {consoleWarn, consoleLog} from '../sys.js';
 import {TypeMapper} from './types.js';
+import {handleTypes} from './handle-types.js';
 
 // NameTransformer for transforming names from JS/TS WebGL to C/GObject
 export class NameTransformer {
@@ -119,9 +120,11 @@ export class NameTransformer {
     }
 
     typeAnnotation(s, type) {
-        //let etype = TypeMapper.gArrayEquivalents[a.type.name];
-        if (type.nullable) {
+        if (type.nullable && !handleTypes.includes(type.name)) {
             s += ' (nullable)';
+        }
+        if (type.transfer) {
+            s += ` (transfer ${type.transfer})`;
         }
         if (type.name.endsWith('[]')) {
             let etype = TypeMapper.gTypes[
@@ -162,16 +165,8 @@ export class NameTransformer {
     }
 
     addOutArg(method, argName, argType) {
-        method.args.push({name: argName, type: {name: argType, nullable: true},
+        method.args.push({name: argName, type: {name: argType},
             optional: true, out: true});
-    }
-
-    methodAnnotations(method, className) {
-        if (!this.adjustSignature(method, className)) {
-            return [];
-        }
-        const lines = ['/**'];
-
     }
 
     errorCheckedTypeConversion(typeDetails) {

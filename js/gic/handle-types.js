@@ -34,3 +34,8 @@ export function saveHandleTypes(filename) {
 if (cmdArgs.length == 2 && cmdArgs[0] == '-o') {
     saveHandleTypes(cmdArgs[1]);
 }
+
+export const handleTypes = [ 'WebGLProgram', 'WebGLShader',
+    'WebGLBuffer', 'WebGLFramebuffer', 'WebGLRenderbuffer',
+    'WebGLTexture', 'WebGLUniformLocation',
+]

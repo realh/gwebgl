@@ -24,9 +24,13 @@ export class TypeMapper {
         {
             n = `Gwebgl${n} *`;
         } else if (n.startsWith('"') || n.startsWith('string')) {
+            // string args are const, returned strings are owned by the caller
             // TODO: There may be exceptions to this simple constness rule
-            //let immutable = typeDetails.method ? 'const ' : '';
-            n = 'const char *';
+            if (typeDetails.varName) {
+                n = 'const char *';
+            } else {
+                n = 'char *';
+            }
         } else if (TypeMapper.builtins.includes(n)) {
         } else if (m) {
             n = m;
