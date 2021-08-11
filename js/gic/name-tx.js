@@ -127,8 +127,11 @@ export class NameTransformer {
             s += ` (transfer ${type.transfer})`;
         }
         if (type.name.endsWith('[]')) {
-            let etype = TypeMapper.gTypes[
-                    type.name.substring(type.name - 2)];
+            const t = type.name.substring(0, type.name.length - 2);
+            let etype = TypeMapper.gElementTypes[ t];
+            if (!etype) {
+                throw new Error(`TypeMapper.gElementTypes.${t} is undefined`);
+            }
             s += ` (array) (element-type ${etype})`;
         }
         if (s && !s.endsWith(':')) {
@@ -165,7 +168,14 @@ export class NameTransformer {
     }
 
     addOutArg(method, argName, argType) {
-        method.args.push({name: argName, type: {name: argType},
+        let nullable = undefined;
+        let transfer = undefined;
+        if (argType == 'string') {
+            nullable = true;
+            transfer = 'full';
+        }
+        method.args.push({name: argName,
+            type: {name: argType, nullable, transfer},
             optional: true, out: true});
     }
 

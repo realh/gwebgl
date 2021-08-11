@@ -2,6 +2,83 @@ import {consoleLog} from '../sys.js';
 import {ClassBuilder} from '../class-builder.js';
 import {NameTransformer} from './name-tx.js';
 
+// Some methods have to take additional action to allocate memory for their
+// results. This is an abstract base class to help perform those actions.
+class AllocatedResultGenerator {
+    // addBufferSizeArgsAt: Index in args at which to add bufferSizeArgs
+    // bufferSizeArgs: [{name: string}]
+    // elementType: Type name (in C) of allocated buffer members
+    // terminated: Whether allocated buffer should have an additional element
+    //             for a 0-terminator
+    constructor(addBufferSizeArgsAt, bufferSizeArgs, elementType, terminated) {
+        this.addBufferSizeArgsAt = addBufferSizeArgsAt;
+        this.bufferSizeArgs = bufferSizeArgs;
+        this.elementType = elementType;
+        this.terminated = terminated;
+    }
+
+    addBufferSizeArgs(m) {
+        m.args = [...m.args];
+        m.args.splice(this.addBufferSizeArgsAt, 0, ...this.bufferSizeArgs);
+    }
+
+    getAllocatorLines(method) {
+        const lines = this.getSizeQueryLines(method);
+        lines.push(this.getAllocStatement(method));
+        return lines;
+    }
+
+    // abstract getAllocStatement(): string
+    // abstract adaptMethod(method: Method): void
+    // abstract getResultAdjusterLines(method: Method): string[]
+}
+
+// For use with getActiveAttrib/getActiveUniform
+class ShaderActiveVarAllocatedResultGenerator extends AllocatedResultGenerator {
+    constructor(maxLengthAttribute) {
+        super(2, [{name: 'bufSize'}, {name: '&bufLength'}], 'GLchar', true);
+        this.maxLengthAttribute = maxLengthAttribute;
+    }
+
+    getSizeQueryLines(method) {
+        return [
+            '    GLint bufSize;',
+            '    GLsizei bufLength;',
+            `    glGetProgramiv(program, GL_${this.maxLengthAttribute}, ` +
+                    '&bufSize);',
+            ];
+    }
+
+    getAllocStatement(method) {
+        return '    GLchar *buf = bufSize ? g_malloc(bufSize + 1) : NULL;';
+    }
+
+    adaptMethod(method) {
+        const m = {...method};
+        this.addBufferSizeArgs(m);
+        m.args[6] = {name: 'buf'};
+        return m;
+    }
+
+    getResultAdjusterLines(method) {
+        return [
+            '    if (name)',
+            '    {',
+            '        if (bufLength < bufSize)',
+            '        {',
+            '            buf = g_realloc(buf, bufLength + 1);',
+            '        }',
+            '        buf[bufLength] = 0;',
+            '        *name = buf;',
+            '    }',
+            '    else',
+            '    {',
+            '        g_free(buf);',
+            '    }',
+        ];
+    }
+}
+
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
         super();
@@ -197,11 +274,19 @@ export class ClassImplementationBuilder extends ClassBuilder {
         if (create) {
             lines.push('    GLuint a;');
         }
+        const alloc = ClassImplementationBuilder.getters[m.name];
+        if (alloc) {
+            lines.push(...alloc.getAllocatorLines(m));
+            m = alloc.adaptMethod(m);
+        }
         let s = m.returnType.name == 'void' ? '    ' : '    return ';
         s += this.webGLMethodNameToGLESFunction(m) + '(';
         s += m.args.map(a => a.name).join(', ');
         s += ');';
         lines.push(s);
+        if (alloc) {
+            lines.push(...alloc.getResultAdjusterLines(m));
+        }
         if (create) {
             lines.push('    return a;');
         }
@@ -292,4 +377,44 @@ export class ClassImplementationBuilder extends ClassBuilder {
                 'prop_id, pspec);',
             '            break;', '    }', '}', ''];
     }
+
+    static getters = {
+        getActiveAttrib: new ShaderActiveVarAllocatedResultGenerator(
+            'ACTIVE_ATTRIBUTE_MAX_LENGTH'),
+        getActiveUniform: new ShaderActiveVarAllocatedResultGenerator(
+            'ACTIVE_UNIFORM_MAX_LENGTH'),
+    }
 }
+
+/*
+class AllocatedResultGenerator {
+    // addBufferSizeArgsAt: Index in args at which to add bufferSizeArgs
+    // bufferSizeArgs: [{name: string}]
+    // nulls: Array of indexes of args that should be replaced with null
+    //        when querying; indexes are after size args have been added
+    // elementType: Type name (in C) of allocated buffer members
+    // terminated: Whether allocated buffer should have an additional element
+    //             for a 0-terminator
+    constructor(addBufferSizeArgsAt, bufferSizeArgs, nulls) {
+        this.addBufferSizeArgsAt = addBufferSizeArgsAt;
+        this.bufferSizeArgs = bufferSizeArgs;
+        this.nulls = nulls;
+        this.elementType = elementType;
+        this.terminated = terminated;
+    }
+
+    adaptMethodForQueryingSize(method) {
+        const m = {...method};
+        this.addBufferSizeArgs(m);
+        for (const i of this.nulls) {
+            m.args[i] = {name: 'null'};
+        }
+        return m;
+    }
+
+    addBufferSizeArgs(m) {
+        m.args = [...method.args];
+        m.args.splice(this.addBufferSizeArgsAt, 0, ...this.bufferSizeArgs);
+    }
+}
+*/
