@@ -10,11 +10,19 @@ class AllocatedResultGenerator {
     // elementType: Type name (in C) of allocated buffer members
     // terminated: Whether allocated buffer should have an additional element
     //             for a 0-terminator
-    constructor(addBufferSizeArgsAt, bufferSizeArgs, elementType, terminated) {
+    // bufSizeAttribute: enum to pass to sizeQueryMethod (without GL_ prefix)
+    // sizeQueryMethod: Method name for getting bufSize
+    // bufOutArg: Name of arg in which buffer result is passed out
+    constructor(addBufferSizeArgsAt, bufferSizeArgs, elementType, terminated,
+        bufSizeAttribute, sizeQueryMethod, bufOutArg)
+    {
         this.addBufferSizeArgsAt = addBufferSizeArgsAt;
         this.bufferSizeArgs = bufferSizeArgs;
         this.elementType = elementType;
         this.terminated = terminated;
+        this.bufSizeAttribute = bufSizeAttribute;
+        this.sizeQueryMethod = sizeQueryMethod;
+        this.bufOutArg = bufOutArg;
     }
 
     addBufferSizeArgs(m) {
@@ -28,29 +36,58 @@ class AllocatedResultGenerator {
         return lines;
     }
 
-    // abstract getAllocStatement(): string
-    // abstract adaptMethod(method: Method): void
-    // abstract getResultAdjusterLines(method: Method): string[]
-}
-
-// For use with getActiveAttrib/getActiveUniform
-class ShaderActiveVarAllocatedResultGenerator extends AllocatedResultGenerator {
-    constructor(maxLengthAttribute) {
-        super(2, [{name: 'bufSize'}, {name: '&bufLength'}], 'GLchar', true);
-        this.maxLengthAttribute = maxLengthAttribute;
-    }
-
     getSizeQueryLines(method) {
         return [
             '    GLint bufSize;',
             '    GLsizei bufLength;',
-            `    glGetProgramiv(program, GL_${this.maxLengthAttribute}, ` +
-                    '&bufSize);',
+            `    ${this.sizeQueryMethod}(program, ` +
+                    `GL_${this.bufSizeAttribute}, &bufSize);`,
             ];
     }
 
+    getAllocSize(method, varName) {
+        let bufSize = this.terminated ? `(${varName} + 1)` : varName;
+        bufSize = `${bufSize} * sizeof(${this.elementType})`;
+        return bufSize;
+    }
+
     getAllocStatement(method) {
-        return '    GLchar *buf = bufSize ? g_malloc(bufSize + 1) : NULL;';
+        const bufSize = this.getAllocSize(method, 'bufSize');
+        return `    ${this.elementType} *buf = g_malloc(${bufSize});`;
+    }
+
+    getResultAdjusterLines(method) {
+        const bufLength = this.getAllocSize(method, 'bufLength');
+        const lines = [
+            `    if (${this.bufOutArg})`,
+            '    {',
+            '        if (bufLength < bufSize)',
+            '        {',
+            `            buf = g_realloc(buf, ${bufLength});`,
+            '        }',
+        ];
+        if (this.terminated) {
+            lines.push('        buf[bufLength] = 0;');
+        }
+        lines.push(
+            `        *${this.bufOutArg} = buf;`,
+            '    }',
+            '    else',
+            '    {',
+            '        g_free(buf);',
+            '    }',
+        );
+        return lines
+    }
+
+    // abstract adaptMethod(method: Method): void
+}
+
+// For use with getActiveAttrib/getActiveUniform
+class ShaderActiveVarAllocatedResultGenerator extends AllocatedResultGenerator {
+    constructor(bufSizeAttribute) {
+        super(2, [{name: 'bufSize'}, {name: '&bufLength'}], 'GLchar', true,
+            bufSizeAttribute, 'glGetProgramiv', 'name');
     }
 
     adaptMethod(method) {
@@ -58,24 +95,6 @@ class ShaderActiveVarAllocatedResultGenerator extends AllocatedResultGenerator {
         this.addBufferSizeArgs(m);
         m.args[6] = {name: 'buf'};
         return m;
-    }
-
-    getResultAdjusterLines(method) {
-        return [
-            '    if (name)',
-            '    {',
-            '        if (bufLength < bufSize)',
-            '        {',
-            '            buf = g_realloc(buf, bufLength + 1);',
-            '        }',
-            '        buf[bufLength] = 0;',
-            '        *name = buf;',
-            '    }',
-            '    else',
-            '    {',
-            '        g_free(buf);',
-            '    }',
-        ];
     }
 }
 
