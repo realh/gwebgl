@@ -183,7 +183,11 @@ export class StringGetter {
 
     getResultAdjusterLines(method) {
         if (this.asArray) {
-            return ['    return g_strsplit((const char *) result, " ", 0);'];
+            return [
+                '    char **sp = g_strsplit((const char *) result, " ", 0);',
+                '    g_free(result);',
+                '    return sp;',
+            ];
         } else {
             return ['    return (const char *) result;'];
         }
