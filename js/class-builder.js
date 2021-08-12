@@ -84,6 +84,26 @@ export class ClassBuilder {
         const changedMethods = [];
         for (let m of this.methods) {
             const nm = m.name;
+            // getUniform is a special case
+            if (nm == 'getUniform') {
+                for (const [suf, type] of [["iv", "GLint"], ["fv", "GLfloat"]])
+                {
+                    let m2 = {...m};
+                    m2.args = [...m.args];
+                    m2.name += suf;
+                    m2.returnType = {name: 'void'};
+                    m2.args.push({
+                        name: 'length', optional: false, out: true,
+                        type: {name: 'GLsizei', nullable: false},
+                    }, {
+                        name: 'result', optional: false, out: true,
+                        type: {name: type + '[]', nullable: false,
+                            transfer: 'full'},
+                    });
+                    changedMethods.push(m2);
+                }
+                continue;
+            }
             if (ClassBuilder.ivAndi64vGetters.includes(nm) && webgl2) {
                 const m2 = {...m};
                 m2.name += 'i64v';

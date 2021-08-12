@@ -4,6 +4,7 @@ import {NameTransformer} from './name-tx.js';
 import {ShaderActiveVarAllocatedResultGenerator,
     ReturnedAllocatedResultGenerator, ReturnOutParameter,
     ShaderPrecisionFixer, StringGetter} from './result-buffers.js';
+import {UniformGetter} from './get-uniform.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
@@ -230,7 +231,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
         if (m.hasOwnProperty('name')) {
             m = m.name;
         }
-        if (m.startsWith('get') &&
+        if (m.startsWith('get') && !m.startsWith('getUniform') &&
             (m.includes('Parameter') || m.endsWith('iv')))
         {
             let resultType = 'GLint';
@@ -343,5 +344,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getShaderSource: new ReturnedAllocatedResultGenerator(
             'SHADER_SOURCE_LENGTH', 'char', 'glGetShaderiv'),
         getSupportedExtensions: new StringGetter(true, 'EXTENSIONS'),
+        getUniformiv: new UniformGetter(),
+        getUniformfv: new UniformGetter(),
     }
 }

@@ -109,6 +109,8 @@ export class TypeMapper {
 
     // When we want to specify the element-type in an array
     static gElementTypes = {
+        'GLfloat': 'gfloat',
+        'GLint': 'gint',
         'WebGLShader': 'guint',
         'string': 'utf8',
     }

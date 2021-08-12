@@ -60,6 +60,7 @@ export class NameTransformer {
     // place for it. If a type transformation fails, the result will have a
     // '//' comment prefix.
     methodSignature(method, className, annotations = false) {
+        const nm = method.name;
         let comment = '';
         if (!this.adjustSignature(method, className)) {
             comment = '// ';
@@ -91,13 +92,19 @@ export class NameTransformer {
             }
             if (lines) {
                 let s = ` * @${a.name}:`;
+                let lengthClause = '';
                 if (a.out) {
+                    if (a.name == 'result' && (method.name == 'getUniformiv' ||
+                        method.name == 'getUniformfv'))
+                    {
+                        lengthClause = ' length=length';
+                    }
                     s += ' (out)';
                     if (a.optional) {
                         s += ' (optional)';
                     }
                 }
-                s = this.typeAnnotation(s, a.type);
+                s = this.typeAnnotation(s, a.type, lengthClause);
                 lines.push(s);
             }
             a = `${t}${a.name}`;
@@ -190,7 +197,7 @@ export class NameTransformer {
             return t;
         } catch (e) {
             consoleWarn(e);
-            return `void * /* ${typeDetails.type.name} */ `;
+            return `gpointer /* ${typeDetails.type.name} */ `;
         }
     }
 

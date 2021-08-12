@@ -135,8 +135,9 @@ export class ReturnOutParameter {
 
     adaptMethod(method) {
         const m = {...method};
-        m.returnType = {name: 'void'};
+        m.args = [...m.args];
         m.args.push({name: '&result'});
+        m.returnType = {name: 'void'};
         return m;
     }
 
@@ -152,6 +153,7 @@ export class ShaderPrecisionFixer {
 
     adaptMethod(method) {
         const m = {...method};
+        m.args = [...m.args];
         m.args.splice(3, 1);
         m.args[2] = {name: 'range'};
         return m;

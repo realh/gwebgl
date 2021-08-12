@@ -2,10 +2,11 @@ import { consoleLog } from './sys.js';
 
 // lines can be a string or string[]. The result is an array of members.
 // Each member is either a property:
-// { name: string; type: type; readOnly: boolean; optional: boolean }
+// { name: string, type: type, readOnly: boolean, optional: boolean }
 // or a method:
-// { name: string; args: {name: string; type: type, optional: boolean}[];
-//   returnType: type; }
+// { name: string,
+//   args: {name: string, type: type, optional: boolean, out?: boolean}[],
+//   returnType: type }
 // where type is:
 // { name: string, nullable: boolean, transfer?: 'full' | 'none' }
 // type.name may be 'void'
