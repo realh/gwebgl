@@ -27,6 +27,10 @@ export class ClassBuilder {
         }
         const webgl2 = name.includes('WebGL2');
         this.processParameterGetters(webgl2);
+        if (this.signaturesProcessor) {
+            this.methods = this.signaturesProcessor.processSignatures(
+                this.methods, webgl2);
+        }
         // Sort to make sure overloads appear consecutively
         const sorter = (a, b) => {
             a = a.name;
@@ -84,22 +88,14 @@ export class ClassBuilder {
         const changedMethods = [];
         for (let m of this.methods) {
             const nm = m.name;
-            // getUniform is a special case
+            // getUniform is a special case; it will probably need further
+            // modification in language binding specialisations
             if (nm == 'getUniform') {
-                for (const [suf, type] of [["iv", "GLint"], ["fv", "GLfloat"]])
+                for (const [suf, type] of [["iv", "Int"], ["fv", "Float"]])
                 {
                     let m2 = {...m};
-                    m2.args = [...m.args];
                     m2.name += suf;
-                    m2.returnType = {name: 'void'};
-                    m2.args.push({
-                        name: 'length', optional: false, out: true,
-                        type: {name: 'GLsizei', nullable: false},
-                    }, {
-                        name: 'result', optional: false, out: true,
-                        type: {name: type + '[]', nullable: false,
-                            transfer: 'full'},
-                    });
+                    m2.returnType = {name: `${type}32Array`};
                     changedMethods.push(m2);
                 }
                 continue;

@@ -5,11 +5,13 @@ import {ShaderActiveVarAllocatedResultGenerator,
     ReturnedAllocatedResultGenerator, ReturnOutParameter,
     ShaderPrecisionFixer, StringGetter} from './result-buffers.js';
 import {UniformGetter} from './get-uniform.js';
+import {SignaturesProcessor} from './sig-proc.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
         super();
         this.nameTx = new NameTransformer();
+        this.signaturesProcessor = new SignaturesProcessor();
     }
 
     buildClass(name, members, final, parent) {

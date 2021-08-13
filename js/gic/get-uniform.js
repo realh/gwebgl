@@ -64,7 +64,7 @@ const bodyAlloc = `
             usize *= 4;
             break;
     }
-    *result = g_malloc(usize);`;
+    gpointer data = g_malloc(usize);`;
 
 export class UniformGetter {
     getAllocatorLines(method) {
@@ -74,13 +74,12 @@ export class UniformGetter {
     adaptMethod(method) {
         const m = {...method};
         m.args = [...m.args];
-        m.args.splice(2, 1);
-        m.args[2].name = '*result';
+        m.args.push({name: 'data'});
+        m.returnType = {name: 'void'};
         return m;
     }
 
     getResultAdjusterLines(method) {
-        return ['    *length = usize;'];
+        return ['    return g_byte_array_new_take(data, usize);'];
     }
 }
-

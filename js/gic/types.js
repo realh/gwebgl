@@ -68,7 +68,7 @@ export class TypeMapper {
     ]
 
     static simpleMap = {
-        'GLenum': 'gint',
+        'GLenum': 'guint',
         'boolean': 'gboolean',
         'GLint | GLboolean': 'gint',
         'GLintptr': 'glong',
@@ -78,10 +78,16 @@ export class TypeMapper {
         'GLclampf': 'gfloat',
         'void': 'void',
         'any': 'gpointer',
-        /*
+        // TODO: ClassBuilder should convert these List types in advance
         'Float32List': 'const GLfloat *',
         'Int32List': 'const gint32 *',
         'Uint32List': 'const guint32 *',
+        // gjs only supports Uint8Array, so further marshalling is needed for
+        // the others
+        'Float32Array': 'const GByteArray *',
+        'Int32Array': 'const GByteArray *',
+        'Uint8Array': 'const GByteArray *',
+        /*
         'ArrayBufferView': 'GBytes *',
         'BufferSource': 'GBytes *',
         'HTMLCanvasElement | OffscreenCanvas': 'GtkGLArea *',

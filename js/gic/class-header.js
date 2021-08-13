@@ -1,5 +1,6 @@
 import {ClassBuilder} from '../class-builder.js';
 import {NameTransformer} from './name-tx.js';
+import {SignaturesProcessor} from './sig-proc.js';
 
 export class HeaderClassBuilder extends ClassBuilder {
     // glHeaderName should be 'GLES2/gl2.h' or 'GLES3/gl3.h' or nully. If nully
@@ -9,6 +10,7 @@ export class HeaderClassBuilder extends ClassBuilder {
         super();
         this.glHeaderName = glHeaderName;
         this.nameTx = new NameTransformer();
+        this.signaturesProcessor = new SignaturesProcessor();
     }
 
     buildClass(name, members, final, parent) {
