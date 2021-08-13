@@ -32,6 +32,7 @@ export class TypeMapper {
                 n = 'char *';
             }
         } else if (TypeMapper.builtins.includes(n)) {
+            n = n.replace('GL', 'g');
         } else if (m) {
             n = m;
         } else {
@@ -58,32 +59,34 @@ export class TypeMapper {
     }
 
     static builtins = [
-        'void',
-        'GLenum',
         'GLuint',
-        'GLintptr',
-        'GLsizeiptr',
         'GLint',
-        'GLbitfield',
         'GLfloat',
         'GLuint64',
-        'GLsizei',
         'GLboolean',
         'GLint64',
-        'GLclampf',
     ]
 
     static simpleMap = {
+        'GLenum': 'gint',
         'boolean': 'gboolean',
-        'GLint | GLboolean': 'GLint',
+        'GLint | GLboolean': 'gint',
+        'GLintptr': 'glong',
+        'GLsizei': 'gint',
+        'GLsizeiptr': 'gssize',
+        'GLbitfield': 'guint',
+        'GLclampf': 'gfloat',
+        'void': 'void',
+        'any': 'gpointer',
+        /*
         'Float32List': 'const GLfloat *',
         'Int32List': 'const gint32 *',
         'Uint32List': 'const guint32 *',
         'ArrayBufferView': 'GBytes *',
-        'any': 'void *',
-        'TexImageSource': 'GdkPixbuf *',
         'BufferSource': 'GBytes *',
         'HTMLCanvasElement | OffscreenCanvas': 'GtkGLArea *',
+        'TexImageSource': 'GdkPixbuf *',
+        */
     }
 
     // As used in g_value_set_*/_get_* etc
