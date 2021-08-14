@@ -92,12 +92,23 @@ export class ClassBuilder {
             // so need to be replaced by two or more functions. Then a JS
             // wrapper needs to work out which GI method to call and adapt the
             // types.
-            if (nm == 'getUniform') {
-                for (const suf of ['iv', 'fv'])
+            const multiGet = ClassBuilder.multiGetters[nm];
+            if (multiGet) {
+                for (const suf of multiGet)
                 {
+                    let rt;
+                    if (suf == 'i') {
+                        rt = {name: 'GLint'};
+                    } else if (suf == 'f') {
+                        rt = {name: 'GLfloat'};
+                    } else if (suf == 'b') {
+                        rt = {name: 'GLboolean'};
+                    } else {
+                        rt = {name: 'Uint8Array', transfer: 'full'};
+                    }
                     let m2 = {...m};
                     m2.name += suf;
-                    m2.returnType = {name: 'Uint8Array', transfer: 'full'};
+                    m2.returnType = rt;
                     changedMethods.push(m2);
                 }
                 continue;
@@ -151,6 +162,10 @@ export class ClassBuilder {
         'getRenderbufferParameter'];
     static ivGettersStripParameter = ['getProgramParameter',
         'getShaderParameter'];
+
+    static multiGetters = {
+        'getUniform': ['iv', 'fv', 'i', 'f'],
+    }
 
     // abstract getHeader(): string[]
     // abstract getclassOpener(): string[]

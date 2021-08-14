@@ -1,32 +1,40 @@
-const bodyAlloc = `
-    GLint usize;
+import {MultiGetter} from './multi-getter.js';
+
+export class UniformGetter extends MultiGetter {
+    getMultiAllocatorLines(method) {
+        return bodyAlloc.split('\n');
+    }
+}
+
+var bodyAlloc = `
+    GLint resultSize;
     GLenum utype;
     gwebgl_webgl_rendering_context_base_getActiveUniform(self,
-        program, location, &usize, &utype, NULL);
+        program, location, &resultSize, &utype, NULL);
     switch (utype) {
         case GL_INT_VEC2:
         case GL_FLOAT_VEC2:
         case GL_BOOL_VEC2:
-            usize *= 8;
+            resultSize *= 8;
             break;
         case GL_INT_VEC3:
         case GL_FLOAT_VEC3:
         case GL_BOOL_VEC3:
-            usize *= 12;
+            resultSize *= 12;
             break;
         case GL_INT_VEC4:
         case GL_FLOAT_VEC4:
         case GL_BOOL_VEC4:
-            usize *= 16;
+            resultSize *= 16;
             break;
         case GL_FLOAT_MAT2:
-            usize *= 4 * 4;
+            resultSize *= 4 * 4;
             break;
         case GL_FLOAT_MAT3:
-            usize *= 9 * 4;
+            resultSize *= 9 * 4;
             break;
         case GL_FLOAT_MAT4:
-            usize *= 16 * 4;
+            resultSize *= 16 * 4;
             break;
         /* WebGL 2.0
         case GL_UNSIGNED_INT_VEC2:
@@ -53,7 +61,7 @@ const bodyAlloc = `
         case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY:
         */
         default:
-        /*
+        /* These should be filtered out and handled by the 'single' versions
         case GL_INT:
         case GL_FLOAT:
         case GL_UNSIGNED_INT:
@@ -61,25 +69,7 @@ const bodyAlloc = `
         case GL_SAMPLER_2D:
         case GL_SAMPLER_CUBE:
         */
-            usize *= 4;
+            resultSize *= 4;
             break;
     }
-    gpointer data = g_malloc(usize);`;
-
-export class UniformGetter {
-    getAllocatorLines(method) {
-        return bodyAlloc.split('\n');
-    }
-
-    adaptMethod(method) {
-        const m = {...method};
-        m.args = [...m.args];
-        m.args.push({name: 'data'});
-        m.returnType = {name: 'void'};
-        return m;
-    }
-
-    getResultAdjusterLines(method) {
-        return ['    return g_byte_array_new_take(data, usize);'];
-    }
-}
+    gpointer data = g_malloc(resultSize);`;
