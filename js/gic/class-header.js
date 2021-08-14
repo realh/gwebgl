@@ -10,7 +10,7 @@ export class HeaderClassBuilder extends ClassBuilder {
         super();
         this.glHeaderName = glHeaderName;
         this.nameTx = new NameTransformer();
-        this.signaturesProcessor = new SignaturesProcessor();
+        //this.signaturesProcessor = new SignaturesProcessor();
     }
 
     buildClass(name, members, final, parent) {

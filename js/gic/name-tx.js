@@ -92,19 +92,13 @@ export class NameTransformer {
             }
             if (lines) {
                 let s = ` * @${a.name}:`;
-                let lengthClause = '';
                 if (a.out) {
-                    if (a.name == 'result' && (method.name == 'getUniformiv' ||
-                        method.name == 'getUniformfv'))
-                    {
-                        lengthClause = ' length=length';
-                    }
                     s += ' (out)';
                     if (a.optional) {
                         s += ' (optional)';
                     }
                 }
-                s = this.typeAnnotation(s, a.type, lengthClause);
+                s = this.typeAnnotation(s, a.type, '');
                 lines.push(s);
             }
             a = `${t}${a.name}`;

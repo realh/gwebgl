@@ -5,13 +5,14 @@ import {ShaderActiveVarAllocatedResultGenerator,
     ReturnedAllocatedResultGenerator, ReturnOutParameter,
     ShaderPrecisionFixer, StringGetter} from './result-buffers.js';
 import {UniformGetter} from './get-uniform.js';
+import {VertexAttribGetter} from './get-vert-attr.js';
 import {SignaturesProcessor} from './sig-proc.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
         super();
         this.nameTx = new NameTransformer();
-        this.signaturesProcessor = new SignaturesProcessor();
+        //this.signaturesProcessor = new SignaturesProcessor();
     }
 
     buildClass(name, members, final, parent) {
@@ -348,5 +349,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getSupportedExtensions: new StringGetter(true, 'EXTENSIONS'),
         getUniformiv: new UniformGetter(),
         getUniformfv: new UniformGetter(),
+        getVertexAttribi: new VertexAttribGetter(),
+        getVertexAttribf: new VertexAttribGetter(),
+        getVertexAttribfv: new VertexAttribGetter(true),
     }
 }

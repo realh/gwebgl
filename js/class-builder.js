@@ -88,14 +88,30 @@ export class ClassBuilder {
         const changedMethods = [];
         for (let m of this.methods) {
             const nm = m.name;
-            // getUniform is a special case; it will probably need further
-            // modification in language binding specialisations
+            // Certain methods can't be mapped directly in the GObject system,
+            // so need to be replaced by two or more functions. Then a JS
+            // wrapper needs to work out which GI method to call and adapt the
+            // types.
             if (nm == 'getUniform') {
-                for (const [suf, type] of [["iv", "Int"], ["fv", "Float"]])
+                for (const suf of ['iv', 'fv'])
                 {
                     let m2 = {...m};
                     m2.name += suf;
-                    m2.returnType = {name: `${type}32Array`};
+                    m2.returnType = {name: 'Uint8Array', transfer: 'full'};
+                    changedMethods.push(m2);
+                }
+                continue;
+            }
+            if (nm == 'getVertexAttrib') {
+                for (const [suf, type] of [['i', 'GLint'], ['f', 'GLfloat'],
+                    ['fv', 'Uint8Array']])
+                {
+                    let m2 = {...m};
+                    m2.name += suf;
+                    m2.returnType = {name: type};
+                    if (type == 'Uint8Array') {
+                        m2.returnType.transfer = 'full';
+                    }
                     changedMethods.push(m2);
                 }
                 continue;

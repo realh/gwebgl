@@ -24,13 +24,7 @@ export class TypeMapper {
         {
             n = `Gwebgl${n} *`;
         } else if (n.startsWith('"') || n.startsWith('string')) {
-            // string args are const, returned strings are owned by the caller
-            // TODO: There may be exceptions to this simple constness rule
-            if (typeDetails.varName) {
-                n = 'const char *';
-            } else {
-                n = 'char *';
-            }
+            n = 'char *';
         } else if (TypeMapper.builtins.includes(n)) {
             n = n.replace('GL', 'g');
         } else if (m) {
@@ -55,6 +49,12 @@ export class TypeMapper {
                 dblIndirection = ' *';
             }
         }
+        // Generally pointer args are const and results are not
+        if ((dblIndirection || n.endsWith('*')) &&
+            typeDetails.type.transfer != 'full')
+        {
+            n = 'const ' + n;
+        } 
         return n + dblIndirection;
     }
 
@@ -79,14 +79,14 @@ export class TypeMapper {
         'void': 'void',
         'any': 'gpointer',
         // TODO: ClassBuilder should convert these List types in advance
-        'Float32List': 'const GLfloat *',
-        'Int32List': 'const gint32 *',
-        'Uint32List': 'const guint32 *',
+        'Float32List': 'GLfloat *',
+        'Int32List': 'gint32 *',
+        'Uint32List': 'guint32 *',
         // gjs only supports Uint8Array, so further marshalling is needed for
         // the others
-        'Float32Array': 'const GByteArray *',
-        'Int32Array': 'const GByteArray *',
-        'Uint8Array': 'const GByteArray *',
+        'Float32Array': 'GByteArray *',
+        'Int32Array': 'GByteArray *',
+        'Uint8Array': 'GByteArray *',
         /*
         'ArrayBufferView': 'GBytes *',
         'BufferSource': 'GBytes *',

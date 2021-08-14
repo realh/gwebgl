@@ -67,7 +67,9 @@ function parseMethod(ln) {
     const [name, tail] = ln.split('(', 2);
     let [args, ret] = tail.split('):');
     ret = parseType(ret.trim());
-    if (ret.name == 'string') {
+    if (ret.name == 'string' || ret.name.includes('Array') ||
+        ret.name.endsWith('[]'))
+    {
         ret.transfer = 'full';
     }
     args = args.trim();
