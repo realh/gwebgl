@@ -352,5 +352,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getVertexAttribi: new VertexAttribGetter(),
         getVertexAttribf: new VertexAttribGetter(),
         getVertexAttribfv: new VertexAttribGetter(true),
+        getVertexAttribOffset: new ReturnOutParameter('glong',
+            'getVertexAttribPointerv'),
     }
 }

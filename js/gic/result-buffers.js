@@ -125,8 +125,9 @@ AllocatedResultGenerator
 
 export class ReturnOutParameter {
     // resultType is a string
-    constructor(resultType) {
+    constructor(resultType, replacementMethodName = null) {
         this.resultType = resultType;
+        this.replacementMethodName =  replacementMethodName;
     }
 
     getAllocatorLines(method) {
@@ -136,8 +137,11 @@ export class ReturnOutParameter {
     adaptMethod(method) {
         const m = {...method};
         m.args = [...m.args];
-        m.args.push({name: '&result'});
+        m.args.push({name: '(gpointer) &result'});
         m.returnType = {name: 'void'};
+        if (this.replacementMethodName) {
+            m.name = this.replacementMethodName;
+        }
         return m;
     }
 
@@ -195,4 +199,3 @@ export class StringGetter {
         }
     }
 }
-
