@@ -352,7 +352,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getUniformiv: new UniformGetter(),
         getUniformfv: new UniformGetter(),
         getVertexAttribi: new VertexAttribGetter('gint'),
-        getVertexAttribf: new VertexAttribGetter('gint'),
+        getVertexAttribf: new VertexAttribGetter('gfloat'),
         getVertexAttribfv: new VertexAttribGetter(),
         getVertexAttribOffset: new ReturnOutParameter('glong',
             'getVertexAttribPointerv'),

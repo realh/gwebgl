@@ -113,20 +113,6 @@ export class ClassBuilder {
                 }
                 continue;
             }
-            if (nm == 'getVertexAttrib') {
-                for (const [suf, type] of [['i', 'GLint'], ['f', 'GLfloat'],
-                    ['fv', 'Uint8Array']])
-                {
-                    let m2 = {...m};
-                    m2.name += suf;
-                    m2.returnType = {name: type};
-                    if (type == 'Uint8Array') {
-                        m2.returnType.transfer = 'full';
-                    }
-                    changedMethods.push(m2);
-                }
-                continue;
-            }
             if (ClassBuilder.ivAndi64vGetters.includes(nm) && webgl2) {
                 const m2 = {...m};
                 m2.name += 'i64v';
