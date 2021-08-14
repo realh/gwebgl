@@ -191,7 +191,6 @@ export class StringGetter {
         if (this.asArray) {
             return [
                 '    char **sp = g_strsplit((const char *) result, " ", 0);',
-                '    g_free(result);',
                 '    return sp;',
             ];
         } else {

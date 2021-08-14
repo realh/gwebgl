@@ -6,8 +6,7 @@ export class UniformGetter extends MultiGetter {
     }
 }
 
-var bodyAlloc = `
-    GLint resultSize;
+var bodyAlloc = `GLint resultSize;
     GLenum utype;
     gwebgl_webgl_rendering_context_base_getActiveUniform(self,
         program, location, &resultSize, &utype, NULL);

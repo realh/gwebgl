@@ -35,8 +35,7 @@ export class MultiGetter {
     }
 
     getResultAdjusterLines(method) {
-        return this.single ?
-            ['    return g_byte_array_new_take(data, resultSize);'] :
-            ['    return result;'];
+        return this.single ?  ['    return result;'] :
+            ['    return g_byte_array_new_take(data, resultSize);'];
     }
 }

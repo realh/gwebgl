@@ -347,6 +347,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getShaderSource: new ReturnedAllocatedResultGenerator(
             'SHADER_SOURCE_LENGTH', 'char', 'glGetShaderiv'),
         getSupportedExtensions: new StringGetter(true, 'EXTENSIONS'),
+        getUniformi: new UniformGetter('gint'),
+        getUniformf: new UniformGetter('gfloat'),
         getUniformiv: new UniformGetter(),
         getUniformfv: new UniformGetter(),
         getVertexAttribi: new VertexAttribGetter(),
