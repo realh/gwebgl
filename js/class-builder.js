@@ -165,6 +165,7 @@ export class ClassBuilder {
 
     static multiGetters = {
         'getUniform': ['iv', 'fv', 'i', 'f'],
+        'getVertexAttrib': ['fv', 'i', 'f'],
     }
 
     // abstract getHeader(): string[]

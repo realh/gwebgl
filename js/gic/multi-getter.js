@@ -26,7 +26,7 @@ export class MultiGetter {
     adaptMethod(method) {
         const m = {...method};
         if (this.single && !method.name.endsWith('v')) {
-            method.name += 'v';
+            m.name += 'v';
         }
         m.args = [...m.args];
         m.args.push({name: this.single ? '&result' : 'data'});
