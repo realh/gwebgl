@@ -43,16 +43,10 @@ export class ListOverloadModifier {
     }
 }
 
-export const overloadModifiers = {
-};
-
 // If the result is empty the method needs no further overloading. Otherwise 
 // the array contains replacement methods.
 export function modifyOverload(method) {
-    let mod = overloadModifiers[method.name];
-    if (!mod) {
-        mod = new ListOverloadModifier();
-    }
+    const mod = new ListOverloadModifier();
     return mod.overload(method);
 }
 
