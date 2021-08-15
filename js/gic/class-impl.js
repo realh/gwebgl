@@ -6,6 +6,7 @@ import {ShaderActiveVarAllocatedResultGenerator,
     ShaderPrecisionFixer, StringGetter} from './result-buffers.js';
 import {SignaturesProcessor} from './sig-proc.js';
 import {MultiGetter} from './multi-getter.js';
+import {ShaderSource} from './shader-source.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
@@ -361,5 +362,6 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getVertexAttribfv: new MultiGetter(),
         getVertexAttribOffset: new ReturnOutParameter('glong',
             'getVertexAttribPointerv'),
+        shaderSource: new ShaderSource(),
     }
 }
