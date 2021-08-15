@@ -8,7 +8,7 @@ import { consoleLog } from './sys.js';
 //   args: {name: string, type: type, optional: boolean, out?: boolean}[],
 //   returnType: type }
 // where type is:
-// { name: string, nullable: boolean, transfer?: 'full' | 'none' }
+// { name: string, nullable?: boolean, transfer?: 'full' | 'none' }
 // type.name may be 'void'
 export function parseInterface(lines) {
     if (typeof lines == 'string') { lines = lines.split('\n'); }

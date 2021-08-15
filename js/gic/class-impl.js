@@ -4,9 +4,8 @@ import {NameTransformer} from './name-tx.js';
 import {ShaderActiveVarAllocatedResultGenerator,
     ReturnedAllocatedResultGenerator, ReturnOutParameter,
     ShaderPrecisionFixer, StringGetter} from './result-buffers.js';
-import {UniformGetter} from './get-uniform.js';
-import {VertexAttribGetter} from './get-vert-attr.js';
 import {SignaturesProcessor} from './sig-proc.js';
+import {MultiGetter} from './multi-getter.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
@@ -347,13 +346,19 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getShaderSource: new ReturnedAllocatedResultGenerator(
             'SHADER_SOURCE_LENGTH', 'char', 'glGetShaderiv'),
         getSupportedExtensions: new StringGetter(true, 'EXTENSIONS'),
-        getUniformi: new UniformGetter('gint'),
-        getUniformf: new UniformGetter('gfloat'),
-        getUniformiv: new UniformGetter(),
-        getUniformfv: new UniformGetter(),
-        getVertexAttribi: new VertexAttribGetter('gint'),
-        getVertexAttribf: new VertexAttribGetter('gfloat'),
-        getVertexAttribfv: new VertexAttribGetter(),
+        getParameteri: new MultiGetter('gint', 'getIntegerv'),
+        getParameterf: new MultiGetter('gfloat', 'getFloatv'),
+        getParameterb: new MultiGetter('guint8', 'getBooleanv'),
+        getParameteriv: new MultiGetter(null, 'getIntegerv'),
+        getParameterfv: new MultiGetter(null, 'getFloatv'),
+        getParameterbv: new MultiGetter(null, 'getBooleanv'),
+        getUniformi: new MultiGetter('gint'),
+        getUniformf: new MultiGetter('gfloat'),
+        getUniformiv: new MultiGetter(),
+        getUniformfv: new MultiGetter(),
+        getVertexAttribi: new MultiGetter('gint'),
+        getVertexAttribf: new MultiGetter('gfloat'),
+        getVertexAttribfv: new MultiGetter(),
         getVertexAttribOffset: new ReturnOutParameter('glong',
             'getVertexAttribPointerv'),
     }

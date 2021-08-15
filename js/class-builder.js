@@ -90,25 +90,32 @@ export class ClassBuilder {
             const nm = m.name;
             // Certain methods can't be mapped directly in the GObject system,
             // so need to be replaced by two or more functions. Then a JS
-            // wrapper needs to work out which GI method to call and adapt the
-            // types.
+            // wrapper needs to work out which GI method to call, the size of
+            // the result array (in bytes) and adapt the types.
             const multiGet = ClassBuilder.multiGetters[nm];
             if (multiGet) {
                 for (const suf of multiGet)
                 {
                     let rt;
+                    let resultSize = false;
                     if (suf == 'i') {
                         rt = {name: 'GLint'};
                     } else if (suf == 'f') {
                         rt = {name: 'GLfloat'};
                     } else if (suf == 'b') {
-                        rt = {name: 'GLboolean'};
+                        // GLboolean is a byte, gboolean is 32-bits
+                        rt = {name: 'GLubyte'};
                     } else {
                         rt = {name: 'Uint8Array', transfer: 'full'};
+                        resultSize = true;
                     }
                     let m2 = {...m};
                     m2.name += suf;
                     m2.returnType = rt;
+                    if (resultSize) {
+                        m2.args = [...m.args, { name: 'resultSize',
+                            optional: false, type: { name: 'GLint' }}];
+                    }
                     changedMethods.push(m2);
                 }
                 continue;
@@ -152,6 +159,7 @@ export class ClassBuilder {
     static multiGetters = {
         'getUniform': ['iv', 'fv', 'i', 'f'],
         'getVertexAttrib': ['fv', 'i', 'f'],
+        'getParameter': ['iv', 'fv', 'i', 'f', 'bv', 'b'],
     }
 
     // abstract getHeader(): string[]

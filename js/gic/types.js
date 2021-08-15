@@ -59,6 +59,8 @@ export class TypeMapper {
     }
 
     static builtins = [
+        'GLchar',
+        'GLuchar',
         'GLuint',
         'GLint',
         'GLfloat',
@@ -68,6 +70,7 @@ export class TypeMapper {
     ]
 
     static simpleMap = {
+        'GLubyte': 'guint8',
         'GLenum': 'guint',
         'boolean': 'gboolean',
         'GLint | GLboolean': 'gint',

@@ -1,34 +1,36 @@
-// This is an abstract class to handle WebGL methods such as getParameter and
+// This is class to handle WebGL methods such as getParameter and
 // getUniform where a single WebGL function chooses one of two or more GLES
 // functions based on an argument value. The GLES functions return arrays of
 // float, int etc and when the array has a size of one the WebGL method returns
 // the element's value instead of a TypedArray. This case is handled by setting
 // the 'single' constructor argument to the returned type name.
 export class MultiGetter {
-    constructor(single = null) {
+    constructor(single = null, rename = null) {
         this.single = single;
+        this.rename = rename;
     }
 
     getAllocatorLines(method) {
         if (this.single) {
             return [`    ${this.single} result;`];
         } else {
-            return this.getMultiAllocatorLines(method);
+            return [`    gpointer data = g_malloc(resultSize);`];
         }
     }
 
-    // This should return a set of lines that includes:
-    // gint resultSize;
-    // gpointer data;
-    //
-    //abstract getMultiAllocatorLines(method);
-
     adaptMethod(method) {
         const m = {...method};
-        if (this.single && !method.name.endsWith('v')) {
+        if (this.rename) {
+            m.name = this.rename;
+        }
+        if (this.single && !m.name.endsWith('v')) {
             m.name += 'v';
         }
         m.args = [...m.args];
+        if (!this.single) {
+            // We don't pass resultSize to the OpenGL func
+            m.args.pop();
+        }
         m.args.push({name: this.single ? '&result' : 'data'});
         m.returnType = {name: 'void'};
         return m;
