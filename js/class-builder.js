@@ -21,7 +21,7 @@ export class ClassBuilder {
         for (const m of members) {
             if (m.hasOwnProperty('readOnly')) {
                 this.props.push(m);
-            } else {
+            } else if (!this.shouldRemove(m)) {
                 this.methods.push(m);
             }
         }
@@ -61,6 +61,10 @@ export class ClassBuilder {
         lines.push(...this.getFunctionDeclarations());
         lines.push(...this.getClassCloser());
         return lines;
+    }
+
+    shouldRemove(method) {
+        return method.name == 'isContextLost';
     }
 
     // Removes properties that have no equivalent in OpenGL ES
