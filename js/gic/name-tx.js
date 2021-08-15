@@ -101,7 +101,8 @@ export class NameTransformer {
                         s += ' (optional)';
                     }
                 }
-                s = this.typeAnnotation(s, a.type, '');
+                s = this.typeAnnotation(s, a.type, a.arrayLength ?
+                    ' length=' + a.arrayLength : '');
                 lines.push(s);
             }
             a = `${t}${a.name}`;
