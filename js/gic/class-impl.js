@@ -96,7 +96,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
         }
 
         let setter = false;
-        if (this.props) {
+        if (this.props?.length) {
             // enum of indexes
             lines.push('enum {');
             let first = true;
@@ -164,19 +164,21 @@ export class ClassImplementationBuilder extends ClassBuilder {
                 this.nameTx.methodNameFromJS('class_init', this.name) + '(' +
                 this.gClassName + 'Class *klass)',
             '{',
-            '    GObjectClass *oclass = G_OBJECT_CLASS(klass);');
+            this.props?.length ?
+                '    GObjectClass *oclass = G_OBJECT_CLASS(klass);' :
+                '    (void) klass;');
 
         if (setter) {
             lines.push(`    oclass->set_property = set_property;`);
         }
-        if (this.props) {
+        if (this.props?.length) {
             lines.push(`    oclass->get_property = get_property;`);
         }
         for (const p of this.props) {
             lines.push(`    properties[${this.propIndexName(p)}] = `,
                 ...this.paramSpec(p));
         }
-        if (this.props) {
+        if (this.props?.length) {
             lines.push('    g_object_class_install_properties(oclass, ' +
                 'NUM_PROPS, properties);');
         }
