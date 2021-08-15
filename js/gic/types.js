@@ -82,7 +82,7 @@ export class TypeMapper {
         'void': 'void',
         'any': 'gpointer',
         // TODO: ClassBuilder should convert these List types in advance
-        'Float32List': 'GLfloat *',
+        'Float32List': 'gfloat *',
         'Int32List': 'gint32 *',
         'Uint32List': 'guint32 *',
         // gjs only supports Uint8Array, so further marshalling is needed for
@@ -90,12 +90,10 @@ export class TypeMapper {
         'Float32Array': 'GByteArray *',
         'Int32Array': 'GByteArray *',
         'Uint8Array': 'GByteArray *',
-        /*
-        'ArrayBufferView': 'GBytes *',
-        'BufferSource': 'GBytes *',
-        'HTMLCanvasElement | OffscreenCanvas': 'GtkGLArea *',
+        'ArrayBufferView': 'GByteArray *',
+        'BufferSource': 'GByteArray *',
+        //'HTMLCanvasElement | OffscreenCanvas': 'GtkGLArea *',
         'TexImageSource': 'GdkPixbuf *',
-        */
     }
 
     // As used in g_value_set_*/_get_* etc

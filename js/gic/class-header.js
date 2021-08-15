@@ -1,16 +1,17 @@
 import {ClassBuilder} from '../class-builder.js';
 import {NameTransformer} from './name-tx.js';
-import {SignaturesProcessor} from './sig-proc.js';
+import {OverloadSignaturesProcessor} from './overloads.js';
 
 export class HeaderClassBuilder extends ClassBuilder {
     // glHeaderName should be 'GLES2/gl2.h' or 'GLES3/gl3.h' or nully. If nully
     // it will generate a conditional include that can be overriden by including
     // either of the above before the header this generates.
-    constructor(glHeaderName) {
+    constructor(glHeaderName, additionalIncludes) {
         super();
         this.glHeaderName = glHeaderName;
         this.nameTx = new NameTransformer();
-        //this.signaturesProcessor = new SignaturesProcessor();
+        this.additionalIncludes = additionalIncludes || [];
+        this.signaturesProcessor = new OverloadSignaturesProcessor();
     }
 
     buildClass(name, members, final, parent) {
@@ -34,6 +35,9 @@ export class HeaderClassBuilder extends ClassBuilder {
         }
         inc.push('#include <glib-object.h>');
         inc.push('#include <gwebgl/handle-types.h>');
+        for (const i of this.additionalIncludes) {
+            inc.push('#include ' + i);
+        }
         inc.push('', 'G_BEGIN_DECLS');
         return inc;
     }

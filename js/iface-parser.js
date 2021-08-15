@@ -1,13 +1,15 @@
 import { consoleLog } from './sys.js';
 
 // lines can be a string or string[]. The result is an array of members.
-// Each member is either a property:
-// { name: string, type: type, readOnly: boolean, optional: boolean }
-// or a method:
+// Each member is either a Property:
+// { name: string, type: Type, readOnly: boolean, optional: boolean }
+// or a Method:
 // { name: string,
-//   args: {name: string, type: type, optional: boolean, out?: boolean}[],
-//   returnType: type }
-// where type is:
+//   args: {name: string, Type: type, optional: boolean, out?: boolean,
+//          arrayLength?: string}[],
+//   returnType: Type }
+// where arrayLength is the name of the argument containing an array's length
+// and Type is:
 // { name: string, nullable?: boolean, transfer?: 'full' | 'none' }
 // type.name may be 'void'
 export function parseInterface(lines) {

@@ -4,15 +4,15 @@ import {NameTransformer} from './name-tx.js';
 import {ShaderActiveVarAllocatedResultGenerator,
     ReturnedAllocatedResultGenerator, ReturnOutParameter,
     ShaderPrecisionFixer, StringGetter} from './result-buffers.js';
-import {SignaturesProcessor} from './sig-proc.js';
 import {MultiGetter} from './multi-getter.js';
 import {ShaderSource} from './shader-source.js';
+import {OverloadSignaturesProcessor} from './overloads.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
         super();
         this.nameTx = new NameTransformer();
-        //this.signaturesProcessor = new SignaturesProcessor();
+        this.signaturesProcessor = new OverloadSignaturesProcessor();
     }
 
     buildClass(name, members, final, parent) {

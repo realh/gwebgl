@@ -7,14 +7,20 @@ import { HeaderClassBuilder } from '../js/gic/class-header.js';
 // Third arg is 'GLES3/gl3.h', 'GLES2/gl2.h' or nothing
 // Fourth arg is parent class, eg 'GObject', or nothing
 
-function runTest(filename, derivability, header, parent) {
+function runTest(filename, derivability, header, parent, incs) {
     const ifaceTxt = loadText(filename);
     const ifaceData = parseInterface(ifaceTxt);
-    const builder = new HeaderClassBuilder(header);
+    if (incs) {
+        incs = incs.split(' ');
+    }
+    const builder = new HeaderClassBuilder(header, incs);
     let name = filename.split('/');
     name = name[name.length - 1].replace('.d.ts', '');
+    if (name.endsWith('Overloads')) {
+        name = name.replace('Overloads', '');
+    }
     builder.buildClass(name, ifaceData, derivability == 'final', parent);
     consolePrint(builder.lines.join('\n'));
 }
 
-runTest(cmdArgs[1], cmdArgs[0], cmdArgs[2], cmdArgs[3]);
+runTest(cmdArgs[1], cmdArgs[0], cmdArgs[2], cmdArgs[3], cmdArgs[4]);
