@@ -275,10 +275,11 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     webGLMethodNameToGLESFunction(m) {
-        if (m.hasOwnProperty('name')) {
-            m = m.name;
+        let nm = m.hasOwnProperty('name') ? m.name : m;
+        if (nm == 'depthRange') {
+            nm += 'f';
         }
-        return `gl${m.substring(0, 1).toUpperCase()}${m.substring(1)}`;
+        return `gl${nm.substring(0, 1).toUpperCase()}${nm.substring(1)}`;
     }
 
     getClassCloser() {

@@ -19,7 +19,7 @@ flags = []
 
 subprocess.call( \
         clang_bin + " -E -x" + lang + " -std=" + std + \
-        " -v - < /dev/null >/dev/null 2>" + \
+        " -Werror -v - < /dev/null >/dev/null 2>" + \
         output,
         shell = True)
         
