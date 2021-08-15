@@ -46,6 +46,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
             parentUpper.startsWith('GWEBGL_'))
         {
             parentUpper = parentUpper.substring(7);
+        } else if (parentUpper.startsWith('GWEBGL_WEB_GL')) {
+            parentUpper = parentUpper.replace('WEB_GL', 'WEBGL_');
         }
         parentUpper = parentUpper.split('_');
         lines.push(`G_DEFINE_TYPE${withPrivate}(` +

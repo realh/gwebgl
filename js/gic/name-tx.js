@@ -23,6 +23,9 @@ export class NameTransformer {
         if (name == 'GObject') {
             return 'G_OBJECT';
         }
+        if (name.startsWith('Gwebgl')) {
+            name = name.replace('Gwebgl', '');
+        }
         let s = 'gwebgl_';
         // We want to treat 'WebGL' as one word.
         if (name.startsWith('WebGL2')) {

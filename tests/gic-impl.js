@@ -12,6 +12,9 @@ function runTest(filename, derivability, parent) {
     const builder = new ClassImplementationBuilder();
     let name = filename.split('/');
     name = name[name.length - 1].replace('.d.ts', '');
+    if (name.endsWith('Overloads')) {
+        name = name.replace('Overloads', '');
+    }
     builder.buildClass(name, ifaceData, derivability == 'final', parent);
     consolePrint(builder.lines.join('\n'));
 }
