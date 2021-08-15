@@ -52,7 +52,7 @@ export class OverloadSignaturesProcessor {
         const newMethods = [];
         for (let m of methods) {
             const modified = modifyOverload(m);
-            if (modified) {
+            if (modified.length) {
                 newMethods.push(...modified);
             } else {
                 newMethods.push(m);

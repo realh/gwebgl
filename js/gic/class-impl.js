@@ -282,6 +282,10 @@ export class ClassImplementationBuilder extends ClassBuilder {
         let nm = m.hasOwnProperty('name') ? m.name : m;
         if (nm == 'depthRange') {
             nm += 'f';
+        } else if (nm.endsWith('FromArray')) {
+            nm = nm.replace('FromArray', '');
+        } else if (nm.endsWith('FromByteArray')) {
+            nm = nm.replace('FromByteArray', '');
         }
         return `gl${nm.substring(0, 1).toUpperCase()}${nm.substring(1)}`;
     }
