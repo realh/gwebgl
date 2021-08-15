@@ -14,6 +14,10 @@ export class ListOverloadModifier {
             const t = a.type.name;
             if (t == 'BufferSource') {
                 replacements.push(this.getByteArrayVersion(method, i));
+            } else if (t == 'TexImageSource') {
+                let m = {...method};
+                m.name += 'FromPixbuf';
+                replacements.push(m);
             } else if (t.endsWith('32List')) {
                 replacements.push(this.getByteArrayVersion(method, i));
                 let m = {...method};
