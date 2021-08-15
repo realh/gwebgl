@@ -12,13 +12,11 @@ export class ListOverloadModifier {
         for (const i in method.args) {
             let a = method.args[i];
             const t = a.type.name;
-            if (t.endsWith('32List')) {
+            if (t == 'BufferSource') {
+                replacements.push(this.getByteArrayVersion(method, i));
+            } else if (t.endsWith('32List')) {
+                replacements.push(this.getByteArrayVersion(method, i));
                 let m = {...method};
-                m.args = [...m.args];
-                m.args[i].type = {name: 'Uint8Array'};
-                m.name += 'FromByteArray';
-                replacements.push(m);
-                m = {...method};
                 m.args = [...m.args];
                 const etype = `GL${t.replace('32List', '').toLowerCase()}[]`;
                 const lName = a.name + 'Length';
@@ -30,6 +28,14 @@ export class ListOverloadModifier {
             }
         }
         return replacements;
+    }
+
+    getByteArrayVersion(method, i) {
+        let m = {...method};
+        m.args = [...m.args];
+        m.args[i].type = {name: 'Uint8Array'};
+        m.name += 'FromByteArray';
+        return m;
     }
 }
 
