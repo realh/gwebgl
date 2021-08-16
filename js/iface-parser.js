@@ -98,3 +98,8 @@ export function copyMethod(method) {
     m.returnType = {...m.returnType};
     return m;
 }
+
+export function showMethodSignature(m) {
+    const args = m.args.map(a => `${a.name}: ${a.type?.name ?? 'any'}`);
+    return `${m.name}(${args}): ${m.returnType?.name | 'void'}`;
+}

@@ -201,6 +201,11 @@ export class NameTransformer {
     errorCheckedTypeConversion(typeDetails) {
         try {
             let t = this.typeMapper.mapType(typeDetails);
+            if (typeDetails.method == 'readPixels' && t == 'const GByteArray *')
+            {
+                // readPixels' array arg is writable
+                t = t.replace('const ', '');
+            }
             if (!t.endsWith('*') && !t.endsWith(' ')) {
                 t += ' ';
             }

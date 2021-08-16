@@ -8,11 +8,6 @@
 
 import { copyMethod } from '../iface-parser.js';
 
-function showMethodSignature(m) {
-    const args = m.args.map(a => `${a.name}: ${a.type.name}`);
-    return `${m.name}(${args}): ${m.returnType?.name | 'void'}`;
-}
-
 export class ListOverloadModifier {
     overload(method) {
         let replacements = [];

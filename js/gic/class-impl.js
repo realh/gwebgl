@@ -1,5 +1,6 @@
 import { ClassBuilder } from '../class-builder.js';
 import { copyMethod } from '../iface-parser.js';
+import { adaptMethodForInvocation } from './invocation.js';
 import { MultiGetter } from './multi-getter.js';
 import { NameTransformer } from './name-tx.js';
 import { OverloadSignaturesProcessor } from './overloads.js';
@@ -197,8 +198,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
             if (sig[0].startsWith('//')) { continue; }
             lines.push(...this.nameTx.methodSignature(m, this.name, true));
             lines.push(...sig, '{');
-            const mb = this.adaptMethodForBody(m);
-            lines.push(...this.methodBody(mb));
+            const inv = adaptMethodForInvocation(m);
+            lines.push(...this.methodBody(inv));
             lines.push('}', '');
         }
         return lines;
@@ -253,31 +254,6 @@ export class ClassImplementationBuilder extends ClassBuilder {
             return new ReturnOutParameter(resultType);
         }
         return null;
-    }
-
-    adaptMethodForBody(m) {
-        m = copyMethod(m);
-        if (m.name == 'clearDepth') {
-            m.name = 'clearDepthf';
-        } else if (m.name.includes('create') &&
-            m.name != 'createProgram' && m.name != 'createShader')
-        {
-            m.name = m.name.replace('create', 'gen') + 's';
-            m.returnType = {name: 'void'};
-            m.args = [{name: '1'}, {name: '&a'}];
-        } else if (m.name.includes('delete') &&
-            m.name != 'deleteProgram' && m.name != 'deleteShader')
-        {
-            m.name += 's';
-            m.args = [{name: '1'}, {name: `&${m.args[0].name}`}];
-        } else {
-            for (const a of m.args) {
-                if (a.type.name == 'GLintptr') {
-                    a.name = '(const void *) ' + a.name;
-                }
-            }
-        }
-        return m;
     }
 
     webGLMethodNameToGLESFunction(m) {
