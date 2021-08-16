@@ -1,6 +1,13 @@
 import { copyMethod, showMethodSignature } from '../iface-parser.js';
 import { consoleLog, consoleWarn } from '../sys.js';
 
+
+// Names of additional methods (besides vertexAttrib[0-9][if]v) where an
+// array data argument doesn't need to be preceded by its length
+const methodsWithNoArrayLength = [
+    'readPixels', 'texImage2D', 'texSubImage2D'
+] 
+
 // Changes a method signature from WebGL to a gl* invocation
 export function adaptMethodForInvocation(m) {
     m = copyMethod(m);
@@ -25,7 +32,9 @@ export function adaptMethodForInvocation(m) {
             const a = m.args[i];
             const tn = a.type?.name;
             if (tn == 'Uint8Array' || tn == 'ArrayBufferView') {
-                if (!/[0-9][if]v$/.test(m.name) && m.name != 'readPixels') {
+                if (!/vertexAttrib[0-9][if]v$/.test(m.name) &&
+                    !methodsWithNoArrayLength.includes(m.name))
+                {
                     m.args.splice(i, 0, {name: `${a.name}->len`});
                     ++i;
                 }
