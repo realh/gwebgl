@@ -226,8 +226,20 @@ export class ClassImplementationBuilder extends ClassBuilder {
         }
         let s = m.returnType.name == 'void' ? '    ' : '    return ';
         s += this.webGLMethodNameToGLESFunction(m) + '(';
-        s += m.args.map(a => a.name).join(', ');
-        s += ');';
+        for (let i = 0; i < m.args.length; ++i) {
+            let app = m.args[i].name;
+            if (i == m.args.length - 1) {
+                app += ');'
+            } else {
+                app += ', ';
+            }
+            if (s.length + app.length > 80) {
+                lines.push(s);
+                s = '        ' + app;
+            } else {
+                s += app;
+            }
+        }
         lines.push(s);
         if (alloc) {
             lines.push(...alloc.getResultAdjusterLines(m));
