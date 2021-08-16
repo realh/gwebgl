@@ -226,6 +226,9 @@ export class ClassImplementationBuilder extends ClassBuilder {
         }
         let s = m.returnType.name == 'void' ? '    ' : '    return ';
         s += this.webGLMethodNameToGLESFunction(m) + '(';
+        if (!m.args.length) {
+            s += ');';
+        }
         for (let i = 0; i < m.args.length; ++i) {
             let app = m.args[i].name;
             if (i == m.args.length - 1) {
