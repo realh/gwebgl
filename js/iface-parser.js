@@ -93,3 +93,10 @@ function parseMethod(ln) {
     }
     return { name, args: parsedArgs, returnType: ret };
 }
+
+export function copyMethod(method) {
+    const m = {...method};
+    m.args = m.args.map(a => { return {...a}});
+    m.returnType = {...m.returnType};
+    return m;
+}

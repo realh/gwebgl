@@ -1,4 +1,7 @@
 // Some methods have to take additional action to allocate memory for their
+
+import { copyMethod } from "../iface-parser";
+
 // results. This is an abstract base class to help perform those actions.
 export class AllocatedResultGenerator {
     // addBufferSizeArgsAt: Index in args at which to add bufferSizeArgs
@@ -95,7 +98,7 @@ AllocatedResultGenerator
     }
 
     adaptMethod(method) {
-        const m = {...method};
+        const m = copyMethod(method);
         this.addBufferSizeArgs(m);
         m.args[6] = {name: 'buf'};
         return m;
@@ -111,7 +114,7 @@ AllocatedResultGenerator
     }
 
     adaptMethod(method) {
-        const m = {...method};
+        const m = copyMethod(method);
         this.addBufferSizeArgs(m);
         m.returnType = {name: 'void'};
         m.args.push({name: 'buf'});
@@ -135,8 +138,7 @@ export class ReturnOutParameter {
     }
 
     adaptMethod(method) {
-        const m = {...method};
-        m.args = [...m.args];
+        const m = copyMethod(method);
         m.args.push({name: '(gpointer) &result'});
         m.returnType = {name: 'void'};
         if (this.replacementMethodName) {
@@ -156,8 +158,7 @@ export class ShaderPrecisionFixer {
     }
 
     adaptMethod(method) {
-        const m = {...method};
-        m.args = [...m.args];
+        const m = copyMethod(method);
         m.args.splice(3, 1);
         m.args[2] = {name: 'range'};
         return m;

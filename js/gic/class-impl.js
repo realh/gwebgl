@@ -7,6 +7,7 @@ import {ShaderActiveVarAllocatedResultGenerator,
 import {MultiGetter} from './multi-getter.js';
 import {ShaderSource} from './shader-source.js';
 import {OverloadSignaturesProcessor} from './overloads.js';
+import { copyMethod } from '../iface-parser.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
     constructor() {
@@ -256,7 +257,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     adaptMethodForBody(m) {
-        m = {...m};
+        m = copyMethod(m);
         if (m.name == 'clearDepth') {
             m.name = 'clearDepthf';
         } else if (m.name.includes('create') &&
@@ -271,7 +272,6 @@ export class ClassImplementationBuilder extends ClassBuilder {
             m.name += 's';
             m.args = [{name: '1'}, {name: `&${m.args[0].name}`}];
         } else {
-            m.args = [...m.args];
             for (const a of m.args) {
                 if (a.type.name == 'GLintptr') {
                     a.name = '(const void *) ' + a.name;

@@ -1,6 +1,8 @@
 // This is an abstract class that can be used as a base for outputting a class
 // in a specific format.
 
+import { copyMethod } from "./iface-parser";
+
 export class ClassBuilder {
     // nameTx: NameTransformer
 
@@ -113,26 +115,26 @@ export class ClassBuilder {
                         rt = {name: 'Uint8Array', transfer: 'full'};
                         resultSize = true;
                     }
-                    let m2 = {...m};
+                    let m2 = copyMethod(m);
                     m2.name += suf;
                     m2.returnType = rt;
                     if (resultSize) {
-                        m2.args = [...m.args, { name: 'resultSize',
-                            optional: false, type: { name: 'GLint' }}];
+                        m2.args.push({ name: 'resultSize',
+                            optional: false, type: { name: 'GLint' }});
                     }
                     changedMethods.push(m2);
                 }
                 continue;
             }
             if (ClassBuilder.ivAndi64vGetters.includes(nm) && webgl2) {
-                const m2 = {...m};
+                const m2 = copyMethod(m);
                 m2.name += 'i64v';
                 m2.returnType.name = 'GLint64';
                 changedMethods.push(m2);
                 // TODO: i64v methods have to be added to
                 // WebGL2RenderingContextBase
             } else if (ClassBuilder.ivAndfvGetters.includes(nm)) {
-                const m2 = {...m};
+                const m2 = copyMethod(m);
                 m2.name += 'fv';
                 m2.returnType.name = 'GLfloat';
                 changedMethods.push(m2);

@@ -6,6 +6,8 @@
 // If the result is empty the method needs no further overloading. Otherwise 
 // the array contains replacement methods.
 
+import { copyMethod } from "../iface-parser";
+
 function showMethodSignature(m) {
     const args = m.args.map(a => `${a.name}: ${a.type.name}`);
     return `${m.name}(${args}): ${m.returnType?.name | 'void'}`;
@@ -21,14 +23,13 @@ export class ListOverloadModifier {
                 const m = this.getByteArrayVersion(method, i);
                 replacements.push(m);
             } else if (t == 'TexImageSource') {
-                let m = {...method};
+                const m = copyMethod(method);
                 m.name += 'FromPixbuf';
                 replacements.push(m);
             } else if (t.endsWith('32List')) {
                 let m = this.getByteArrayVersion(method, i);
                 replacements.push(m);
-                m = {...method};
-                m.args = [...m.args];
+                m = copyMethod(method);
                 const etype = `GL${t.replace('32List', '').toLowerCase()}[]`;
                 m.args[i].type = {name: etype};
                 // *32List types are only used for arrays where the size is
@@ -46,9 +47,7 @@ export class ListOverloadModifier {
     }
 
     getByteArrayVersion(method, i) {
-        let m = {...method};
-        m.args = [...m.args];
-        m.args[i] = {...m.args[i]};
+        let m = copyMethod(method);
         m.args[i].type = {name: 'Uint8Array'};
         m.name += 'FromByteArray';
         return m;

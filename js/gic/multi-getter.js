@@ -3,6 +3,9 @@
 // functions based on an argument value. The GLES functions return arrays of
 // float, int etc and when the array has a size of one the WebGL method returns
 // the element's value instead of a TypedArray. This case is handled by setting
+
+import { copyMethod } from "../iface-parser";
+
 // the 'single' constructor argument to the returned type name.
 export class MultiGetter {
     constructor(single = null, rename = null) {
@@ -19,14 +22,13 @@ export class MultiGetter {
     }
 
     adaptMethod(method) {
-        const m = {...method};
+        const m = copyMethod(method);
         if (this.rename) {
             m.name = this.rename;
         }
         if (this.single && !m.name.endsWith('v')) {
             m.name += 'v';
         }
-        m.args = [...m.args];
         if (!this.single) {
             // We don't pass resultSize to the OpenGL func
             m.args.pop();
