@@ -84,7 +84,9 @@ export class HeaderClassBuilder extends ClassBuilder {
     getFunctionDeclarations() {
         const lines = [];
         for (const m of this.methods) {
-            lines.push(this.nameTx.methodSignature(m, this.name) + ';');
+            const sig = this.nameTx.methodSignature(m, this.name);
+            sig[sig.length - 1] += ';';
+            lines.push(...sig, '');
         }
         return lines;
     }

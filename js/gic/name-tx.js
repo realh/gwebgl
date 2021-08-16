@@ -122,8 +122,20 @@ export class NameTransformer {
         } else if (lines) {
             lines.push(' */');
         }
-        return annotations ? lines :
-            `${comment}${returnType}${methodName}(${args.join(', ')})`;
+        if (annotations) {
+            return lines;
+        }
+        let argLines = args.join(',\n').split('\n').map(a =>
+            `${comment}    ${a}`);
+        const numArgs = argLines.length;
+        let closer = ')';
+        if (numArgs) {
+            argLines[numArgs - 1] += closer;
+            closer = '';
+        }
+        return [comment + returnType,
+             `${comment}${methodName}(${closer}`,
+             ...argLines];
     }
 
     typeAnnotation(s, type, lengthClause = '') {

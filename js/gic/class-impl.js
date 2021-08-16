@@ -191,9 +191,9 @@ export class ClassImplementationBuilder extends ClassBuilder {
         const lines = [];
         for (const m of this.methods) {
             const sig = this.nameTx.methodSignature(m, this.name);
-            if (sig.startsWith('//')) { continue; }
+            if (sig[0].startsWith('//')) { continue; }
             lines.push(...this.nameTx.methodSignature(m, this.name, true));
-            lines.push(sig, '{');
+            lines.push(...sig, '{');
             const mb = this.adaptMethodForBody(m);
             lines.push(...this.methodBody(mb));
             lines.push('}', '');
