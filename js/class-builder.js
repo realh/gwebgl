@@ -133,8 +133,7 @@ export class ClassBuilder {
                 changedMethods.push(m2);
                 // TODO: i64v methods have to be added to
                 // WebGL2RenderingContextBase
-            }
-            if (ClassBuilder.ivAndfvGetters.includes(nm)) {
+            } else if (ClassBuilder.ivAndfvGetters.includes(nm)) {
                 const m2 = copyMethod(m);
                 m2.name += 'fv';
                 m2.returnType.name = 'GLfloat';
@@ -144,11 +143,9 @@ export class ClassBuilder {
                 ClassBuilder.ivGetters.includes(nm) ||
                 ClassBuilder.ivAndfvGetters.includes(nm))
             {
-                m = copyMethod(m);
                 m.name += 'iv';
                 m.returnType.name = 'GLint';
             } else if (ClassBuilder.ivGettersStripParameter.includes(nm)) {
-                m = copyMethod(m);
                 m.name = nm.replace('Parameter', '') + 'iv';
                 m.returnType.name = 'GLint';
             }
