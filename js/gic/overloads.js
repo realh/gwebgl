@@ -7,6 +7,7 @@
 // the array contains replacement methods.
 
 import { copyMethod } from '../iface-parser.js';
+import { methodNeedsArrayLength } from './invocation.js';
 
 export class ListOverloadModifier {
     overload(method) {
@@ -27,13 +28,12 @@ export class ListOverloadModifier {
                 m = copyMethod(method);
                 const etype = `GL${t.replace('32List', '').toLowerCase()}[]`;
                 m.args[i].type = {name: etype};
-                // *32List types are only used for arrays where the size is
-                // determined by the method name, not an additional argument
-                /*
-                const lName = a.name + 'Length';
-                m.args[i].arrayLength = lName;
-                m.args.splice(i, 0, { name: lName, type: { name: 'GLint' }});
-                */
+                if (methodNeedsArrayLength) {
+                    const lName = a.name + 'Length';
+                    m.args[i].arrayLength = lName;
+                    m.args.splice(i, 0,
+                        { name: lName, type: { name: 'GLint' }});
+                }
                 m.name += 'FromArray';
                 replacements.push(m);
             }
@@ -43,7 +43,13 @@ export class ListOverloadModifier {
 
     getByteArrayVersion(method, i) {
         let m = copyMethod(method);
-        m.args[i].type = {name: 'Uint8Array'};
+        let t = m.args[i].type.name;
+        if (t == 'BufferSource') {
+            t = 'Uint8Array';
+        } else {
+            t = t.replace('List', 'Array');
+        }
+        m.args[i].type = {name: t};
         m.name += 'FromByteArray';
         return m;
     }
