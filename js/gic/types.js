@@ -3,7 +3,7 @@
 export class TypeMapper {
     // In some cases we may need some context to work out the most appropriate
     // C type, so typeDetails has this interface: {
-    //  type: type          // See ../js/iface-parser.js
+    //  type: Type          // See ../js/iface-parser.js
     //  memberOf: string    // The interface currently being processed
     //  method?: string     // Method name (undefined for properties)
     //  varName?: string    // Argument name for methods, or property name
