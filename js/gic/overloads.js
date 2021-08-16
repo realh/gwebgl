@@ -28,7 +28,7 @@ export class ListOverloadModifier {
                 m = copyMethod(method);
                 const etype = `GL${t.replace('32List', '').toLowerCase()}[]`;
                 m.args[i].type = {name: etype};
-                if (methodNeedsArrayLength) {
+                if (methodNeedsArrayLength(m)) {
                     const lName = a.name + 'Length';
                     m.args[i].arrayLength = lName;
                     m.args.splice(i, 0,
