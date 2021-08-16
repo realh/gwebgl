@@ -1,6 +1,6 @@
 // shaderSource is not really a getter, but the getter interface is handy
 
-import { copyMethod } from "../iface-parser";
+import { copyMethod } from "../iface-parser.js";
 
 // for the necessary modifications.
 export class ShaderSource {

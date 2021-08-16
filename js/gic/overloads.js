@@ -6,7 +6,7 @@
 // If the result is empty the method needs no further overloading. Otherwise 
 // the array contains replacement methods.
 
-import { copyMethod } from "../iface-parser";
+import { copyMethod } from '../iface-parser.js';
 
 function showMethodSignature(m) {
     const args = m.args.map(a => `${a.name}: ${a.type.name}`);

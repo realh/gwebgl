@@ -1,5 +1,6 @@
 {
     "files.associations": {
         "rendering-context.h": "c"
-    }
+    },
+    "javascript.preferences.quoteStyle": "single"
 }

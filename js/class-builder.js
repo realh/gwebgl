@@ -1,7 +1,7 @@
 // This is an abstract class that can be used as a base for outputting a class
 // in a specific format.
 
-import { copyMethod } from "./iface-parser";
+import { copyMethod } from './iface-parser.js';
 
 export class ClassBuilder {
     // nameTx: NameTransformer

@@ -1,5 +1,3 @@
-import { consoleLog } from './sys.js';
-
 // lines can be a string or string[]. The result is an array of members.
 // Each member is either a Property:
 // { name: string, type: Type, readOnly: boolean, optional: boolean }

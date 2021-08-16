@@ -1,6 +1,6 @@
-import {consoleWarn, consoleLog} from '../sys.js';
-import {TypeMapper} from './types.js';
-import {handleTypes} from './handle-types.js';
+import { consoleWarn } from '../sys.js';
+import { handleTypes } from './handle-types.js';
+import { TypeMapper } from './types.js';
 
 // NameTransformer for transforming names from JS/TS WebGL to C/GObject
 export class NameTransformer {

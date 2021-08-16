@@ -4,7 +4,7 @@
 // float, int etc and when the array has a size of one the WebGL method returns
 // the element's value instead of a TypedArray. This case is handled by setting
 
-import { copyMethod } from "../iface-parser";
+import { copyMethod } from '../iface-parser.js';
 
 // the 'single' constructor argument to the returned type name.
 export class MultiGetter {

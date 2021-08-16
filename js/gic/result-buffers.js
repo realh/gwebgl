@@ -1,6 +1,6 @@
 // Some methods have to take additional action to allocate memory for their
 
-import { copyMethod } from "../iface-parser";
+import { copyMethod } from '../iface-parser.js';
 
 // results. This is an abstract base class to help perform those actions.
 export class AllocatedResultGenerator {
