@@ -64,7 +64,6 @@ export class NameTransformer {
     // '//' comment prefix.
     methodSignature(method, className, annotations = false) {
         const nm = method.name;
-        const vb = nm.endsWith('FromByteArray');
         let comment = '';
         if (!this.adjustSignature(method, className)) {
             comment = '// ';
@@ -91,9 +90,6 @@ export class NameTransformer {
                 argName: a.name
             };
             let t = this.errorCheckedTypeConversion(td);
-            if (vb && a.name == 'values') {
-                log(`Converted type of ${nm} arg ${a.name} from ${a.type.name} to ${t}`);
-            }
             if (a.out) {
                 t += '*';
             }

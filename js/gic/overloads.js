@@ -18,22 +18,14 @@ export class ListOverloadModifier {
             let a = method.args[i];
             const t = a.type.name;
             if (t == 'BufferSource') {
-                log('BufferSource:');
-                log(`  Original 1:-  ${showMethodSignature(method)}`);
                 const m = this.getByteArrayVersion(method, i);
-                log(`  Original 2:-  ${showMethodSignature(method)}`);
-                log(`  Replacement:- ${showMethodSignature(m)}`);
                 replacements.push(m);
             } else if (t == 'TexImageSource') {
                 let m = {...method};
                 m.name += 'FromPixbuf';
                 replacements.push(m);
             } else if (t.endsWith('32List')) {
-                log(t + ':');
-                log(`  Original 1:-  ${showMethodSignature(method)}`);
                 let m = this.getByteArrayVersion(method, i);
-                log(`  Original 2:-  ${showMethodSignature(method)}`);
-                log(`  Replacement:- ${showMethodSignature(m)}`);
                 replacements.push(m);
                 m = {...method};
                 m.args = [...m.args];
@@ -59,8 +51,6 @@ export class ListOverloadModifier {
         m.args[i] = {...m.args[i]};
         m.args[i].type = {name: 'Uint8Array'};
         m.name += 'FromByteArray';
-        log(`Setting ${m.name} arg ${i}/${m.args[i].name} to 'Uint8Array`);
-        log(`  ${showMethodSignature(m)}`);
         return m;
     }
 }
@@ -79,11 +69,7 @@ export class OverloadSignaturesProcessor {
         for (let m of methods) {
             const modified = modifyOverload(m);
             if (modified.length) {
-                log(`${m.name} replaced with ${modified.map(m => m.name)}`);
                 newMethods.push(...modified);
-                for (const mo of modified) {
-                    log(`  ${showMethodSignature(mo)}`);
-                }
             } else {
                 newMethods.push(m);
             }
