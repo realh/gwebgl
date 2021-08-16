@@ -49,12 +49,12 @@ export class HeaderClassBuilder extends ClassBuilder {
         const splitCNU = this.classNameUpper.split('_');
         const nmSpcUpper = splitCNU[0];
         const unqClsNmUpper = splitCNU.slice(1).join('_');
-        const lines = [`#define ${nmSpcUpper}_TYPE_${unqClsNmUpper} ` +
-            `${this.classNameLower}_get_type()`];
+        const lines = [`#define ${nmSpcUpper}_TYPE_${unqClsNmUpper} \\`,
+            `    ${this.classNameLower}_get_type()`];
         const derivable = this.final ? "FINAL" : "DERIVABLE";
-        lines.push(`G_DECLARE_${derivable}_TYPE(` +
-            `${this.gClassName}, ${this.classNameLower}, ` +
-            `${nmSpcUpper}, ${unqClsNmUpper}, ${this.parent})`);
+        lines.push(`G_DECLARE_${derivable}_TYPE( \\`,
+            `    ${this.gClassName}, ${this.classNameLower}, \\`,
+            `    ${nmSpcUpper}, ${unqClsNmUpper}, ${this.parent})`);
         if (!this.final) {
             lines.push('',
                 `struct _${this.gClassName}Class {`,

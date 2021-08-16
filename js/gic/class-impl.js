@@ -21,8 +21,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
         this.classNameUpper = this.nameTx.upperedClassName(name);
         parent = parent || 'GObject';
         if (!final) {
-            this.priv = `    ${this.gClassName}Private *priv = ` +
-                `${this.classNameLower}_get_instance_private(self);`;
+            this.priv = [`    ${this.gClassName}Private *priv = `,
+                `        ${this.classNameLower}_get_instance_private(self);`];
         }
         super.buildClass(name, members, final, parent);
     }
@@ -50,13 +50,14 @@ export class ClassImplementationBuilder extends ClassBuilder {
             parentUpper = parentUpper.replace('WEB_GL', 'WEBGL_');
         }
         parentUpper = parentUpper.split('_');
-        lines.push(`G_DEFINE_TYPE${withPrivate}(` +
-            `${this.gClassName}, ${this.classNameLower}, ` +
-            `${parentUpper[0]}_TYPE_${parentUpper.slice(1).join('_')});`, '');
+        lines.push(`G_DEFINE_TYPE${withPrivate}( \\`,
+            `    ${this.gClassName}, ${this.classNameLower}, \\`,
+            `    ${parentUpper[0]}_TYPE_${parentUpper.slice(1).join('_')});`,
+            '');
         // instance init()
         lines.push('static void ' +
-                this.nameTx.methodNameFromJS('init', this.name) + '(' +
-                this.gClassName + ' *self)',
+                this.nameTx.methodNameFromJS('init', this.name) + '(',
+                '    ' + this.gClassName + ' *self)',
             '{', '    (void) self;', '}', '');
         return lines;
     }
@@ -87,7 +88,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
                 lines.push(this.nameTx.methodSignature(getter, this.name));
                 lines.push('{');
                 if (!this.final) {
-                    lines.push(this.priv);
+                    lines.push(...this.priv);
                 }
                 lines.push(`    return ${this.final ? 'self' : 'priv'}->` +
                     `${p.name};`);
@@ -161,8 +162,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
 
         // class_init()
         lines.push('static void ' +
-                this.nameTx.methodNameFromJS('class_init', this.name) + '(' +
-                this.gClassName + 'Class *klass)',
+                this.nameTx.methodNameFromJS('class_init', this.name) + '(',
+                '    ' + this.gClassName + 'Class *klass)',
             '{',
             this.props?.length ?
                 '    GObjectClass *oclass = G_OBJECT_CLASS(klass);' :
@@ -175,8 +176,10 @@ export class ClassImplementationBuilder extends ClassBuilder {
             lines.push(`    oclass->get_property = get_property;`);
         }
         for (const p of this.props) {
-            lines.push(`    properties[${this.propIndexName(p)}] = `,
-                ...this.paramSpec(p));
+            const pspec = this.paramSpec(p);
+            const p1 = pspec.shift();
+            lines.push(`    properties[${this.propIndexName(p)}] = ${p1}`,
+                ...pspec);
         }
         if (this.props?.length) {
             lines.push('    g_object_class_install_properties(oclass, ' +
@@ -308,8 +311,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
     paramSpec(prop) {
         const n = `"${prop.name}"`;
         const gpst = this.nameTx.gParamSpecType(prop.type);
-        const lines = [`    g_param_spec_${gpst}(`,
-            `        ${n}, ${n}, ${n}, `];
+        const lines = [`g_param_spec_${gpst}(`,
+            `        ${n},`, `        ${n},`, `        ${n},`];
         let minmax = '        ';
         if (gpst.includes("int") || gpst.includes("float")) {
             const u = gpst.toUpperCase();
@@ -325,10 +328,10 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     selfAndPriv() {
-        const lines = [`    ${this.gClassName} *self = ` +
-            `${this.classNameUpper}(object);`];
+        const lines = [`    ${this.gClassName} *self = `,
+            `        ${this.classNameUpper}(object);`];
         if (!this.final) {
-            lines.push(this.priv);
+            lines.push(...this.priv);
         }
         const priv = this.final ? 'self' : 'priv';
         return [lines, priv];
