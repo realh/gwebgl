@@ -34,7 +34,7 @@ export class HeaderClassBuilder extends ClassBuilder {
             inc.push(`#include <${this.glHeaderName}>`);
         }
         inc.push('#include <glib-object.h>');
-        inc.push('#include <gwebgl/handle-types.h>');
+        inc.push('#include "handle-types.h"');
         for (const i of this.additionalIncludes) {
             inc.push('#include ' + i);
         }

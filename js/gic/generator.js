@@ -22,7 +22,7 @@ export class GICGenerator {
         let final = false;
         let parent;
         if (name == 'WebGLRenderingContext') {
-            additionalIncludes.push('<gwebgl/rendering-context-base.h>');
+            additionalIncludes.push('"rendering-context-base.h"');
             parent = 'GwebglWebGLRenderingContextBase';
             if (enableGdkPixbuf) {
                 additionalIncludes.push('<gdk-pixbuf/gdk-pixbuf.h>');

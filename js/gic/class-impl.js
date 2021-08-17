@@ -55,7 +55,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     getHeader() {
-        return [`#include <gwebgl/${this.nameTx.fileBaseName(this.name)}.h>`];
+        return [`#include "${this.nameTx.fileBaseName(this.name)}.h"`];
     }
 
     getClassOpener() {
