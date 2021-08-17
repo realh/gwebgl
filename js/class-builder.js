@@ -76,14 +76,16 @@ export class ClassBuilder {
             this.props = this.props.filter(p => {
                 // Remove anything with lower case eg 'canvas',
                 // 'bufferWidth', 'bufferHeight'
+                /*
                 if (p.name.toUpperCase() != p.name) {
                     return false;
                 }
+                */
                 // OpenGL ES 2.0 doesn't support DEPTH_STENCIL_*;
                 if (p.name.startsWith('DEPTH_STENCIL')) {
                     return false;
                 }
-                // TODO: Add them to WebGL2RenderingContextBase
+                // TODO: Add DEPTH_STENCIL props to WebGL2RenderingContextBase
                 return true;
             });
         }

@@ -17,15 +17,40 @@ export class ClassImplementationBuilder extends ClassBuilder {
         this.signaturesProcessor = new OverloadSignaturesProcessor();
     }
 
+    filterProps() {
+        super.filterProps();
+        if (this.name = 'WebGLRenderingContextBase') {
+            let canvasProps = [
+                this.props.findIndex(p => p.name == 'canvas'),
+                this.props.findIndex(p => p.name == 'drawingBufferWidth'),
+                this.props.findIndex(p => p.name == 'drawingBufferHeight'),
+            ];
+            // Reverse sort the indices so that removing their elements doesn't
+            // invalid subsequent indices
+            canvasProps = canvasProps.filter(i => i >= 0).sort().reverse();
+            for (const i of canvasProps) {
+                this.props.splice(i, 1);
+            }
+        }
+    }
+
     buildClass(name, members, final, parent) {
         this.gClassName = this.nameTx.classNameFromJS(name);
         this.classNameLower = this.nameTx.loweredClassName(name);
         this.classNameUpper = this.nameTx.upperedClassName(name);
         parent = parent || 'GObject';
-        if (!final) {
+        // Only the base class needs private data, and only if it supports
+        // the canvas property as a GtkGLArea. I've decided to shift support
+        // for canvas to the JS wrapper, so now nothing needs private data
+        /*
+        if (name == 'WebGLRenderingContextBase' && enableCanvasAsGtkGLArea) {
             this.priv = [`    ${this.gClassName}Private *priv = `,
                 `        ${this.classNameLower}_get_instance_private(self);`];
+        } else {
+            this.priv = false;
         }
+        */
+       this.priv = false;
         super.buildClass(name, members, final, parent);
     }
 
@@ -34,15 +59,13 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     getClassOpener() {
-        const lines = [this.final ? `struct _${this.gClassName} {` :
-            'typedef struct {'];
-        if (this.final) {
-            lines.push(`    ${this.parent} parent_instance;`);
-        }
+        const lines = this.priv ? ['typedef struct {'] :
+            [`struct _${this.gClassName} {`,
+             `    ${this.parent} parent_instance;`];
         const props = this.getPropertyBackings();
         lines.push(...props);
-        lines.push(`}${this.final ? ';' : ` ${this.gClassName}Private;`}`, '');
-        const withPrivate = this.final ? '' : '_WITH_PRIVATE';
+        lines.push(`}${this.priv ? ` ${this.gClassName}Private;` : ';'}`, '');
+        const withPrivate = this.priv ? '_WITH_PRIVATE' : '';
         let parentUpper = this.nameTx.upperedClassName(this.parent);
         if (!this.parent.startsWith('Gwebgl') &&
             parentUpper.startsWith('GWEBGL_'))
@@ -89,10 +112,10 @@ export class ClassImplementationBuilder extends ClassBuilder {
                 }
                 lines.push(this.nameTx.methodSignature(getter, this.name));
                 lines.push('{');
-                if (!this.final) {
+                if (this.priv) {
                     lines.push(...this.priv);
                 }
-                lines.push(`    return ${this.final ? 'self' : 'priv'}->` +
+                lines.push(`    return ${this.priv ? 'priv' : 'self'}->` +
                     `${p.name};`);
                 lines.push('}', '');
             }
@@ -146,7 +169,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
             lines.push(...sap[0]);
             // Avoids a warning if priv/self are unused, harmless if they are
             lines.push('    (void) self;');
-            if (!this.final) {
+            if (this.priv) {
                 lines.push('    (void) priv;');
             }
 
@@ -321,10 +344,10 @@ export class ClassImplementationBuilder extends ClassBuilder {
     selfAndPriv() {
         const lines = [`    ${this.gClassName} *self = `,
             `        ${this.classNameUpper}(object);`];
-        if (!this.final) {
+        if (this.priv) {
             lines.push(...this.priv);
         }
-        const priv = this.final ? 'self' : 'priv';
+        const priv = this.priv ? 'priv' : 'self';
         return [lines, priv];
     }
 
