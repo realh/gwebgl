@@ -1,5 +1,6 @@
 import { ClassBuilder } from '../class-builder.js';
 import { copyMethod } from '../iface-parser.js';
+import { TextureFromGdkPixbuf } from './gpixbuf.js';
 import { adaptMethodForInvocation } from './invocation.js';
 import { MultiGetter } from './multi-getter.js';
 import { NameTransformer } from './name-tx.js';
@@ -365,5 +366,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
         getVertexAttribOffset: new ReturnOutParameter('glong',
             'getVertexAttribPointerv'),
         shaderSource: new ShaderSource(),
+        texImage2DFromPixbuf: new TextureFromGdkPixbuf(),
+        texSubImage2DFromPixbuf: new TextureFromGdkPixbuf(),
     }
 }
