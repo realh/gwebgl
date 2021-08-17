@@ -3,6 +3,8 @@ import { saveText } from '../sys.js';
 const template = `#ifndef __GWEBGL_HANDLE_TYPES_H
 #define __GWEBGL_HANDLE_TYPES_H
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,9 +24,9 @@ ${webglAlias('UniformLocation', 'int')}
 #endif // __GWEBGL_HANDLE_TYPES_H
 `
 
-function webglAlias(wt, ct = 'unsigned') {
+function webglAlias(wt, ct = 'guint') {
     wt = 'GwebglWebGL' + wt;
-    return `/**\n * ${wt}: A WebGL handle type\n */\ntypedef ${ct} ${wt};\n`;
+    return `/**\n * ${wt}:\n */\ntypedef ${ct} ${wt};\n`;
 }
 
 export function saveHandleTypes(filename) {

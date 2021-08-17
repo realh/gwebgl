@@ -1,7 +1,8 @@
-import { cmdArgs, mkDirWithParents } from '../sys.js';
+import { cmdArgs, mkDirWithParents, saveText } from '../sys.js';
 import { WebGLToGLES } from '../webgl-to-gles.js';
 import { GICGenerator } from './generator.js';
 import { saveHandleTypes } from './handle-types.js';
+import { packageHeader } from './pkg-header.js';
 
 // outDir must end with 'gwebgl' for the includes to work
 function main(refsDir, outDir) {
@@ -10,6 +11,7 @@ function main(refsDir, outDir) {
     const generator = new GICGenerator();
     const wToES = new WebGLToGLES(generator, refsDir, outDir);
     wToES.processAll();
+    saveText(`${outDir}/gwebgl.h`, packageHeader);
 }
 
 main(cmdArgs[0], cmdArgs[1]);

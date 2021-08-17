@@ -89,7 +89,7 @@ export class NameTransformer {
         const methodName = this.methodNameFromJS(method.name, className)
         let lines = [];
         if (annotations && !comment) {
-            lines = ['/**', ` * ${methodName}: (method):`];
+            lines = ['/**', ` * ${methodName}:`, ` * @self: A ${className}`];
         }
         const args = [`${this.classNameFromJS(className)} *self`];
         for (let a of method.args) {
@@ -135,8 +135,8 @@ export class NameTransformer {
         if (annotations) {
             return lines;
         }
-        let argLines = args.join(',\n').split('\n').map(a =>
-            `${comment}    ${a}`);
+        let argLines = args.join(',\n').split('\n').filter(a => a?.length).
+            map(a => `${comment}    ${a}`);
         const numArgs = argLines.length;
         let closer = ')';
         if (numArgs) {
@@ -146,6 +146,14 @@ export class NameTransformer {
         return [comment + returnType,
              `${comment}${methodName}(${closer}`,
              ...argLines];
+        // Add self = args.shift(); before the argLines statement, change the
+        // second allocation to closer ',' instead of '', and replace the
+        // return statement with the one below to put the return type and self
+        // arg all on the same line.
+        /*
+        return [`${comment}${returnType}${methodName}(${self}${closer}`,
+             ...argLines];
+        */
     }
 
     typeAnnotation(s, type, lengthClause = '') {

@@ -8,7 +8,8 @@
 //   returnType: Type }
 // where arrayLength is the name of the argument containing an array's length
 // and Type is:
-// { name: string, nullable?: boolean, transfer?: 'full' | 'none' }
+// { name: string, nullable?: boolean,
+//   transfer?: 'full' | 'none' | 'container' }
 // type.name may be 'void'
 export function parseInterface(lines) {
     if (typeof lines == 'string') { lines = lines.split('\n'); }
@@ -67,10 +68,12 @@ function parseMethod(ln) {
     const [name, tail] = ln.split('(', 2);
     let [args, ret] = tail.split('):');
     ret = parseType(ret.trim());
-    if (ret.name == 'string' || ret.name.includes('Array') ||
-        ret.name.endsWith('[]'))
+    if (ret.name == 'string' || ret.name.includes('Array'))
     {
         ret.transfer = 'full';
+    }
+    if (ret.name.endsWith('[]')) {
+        ret.transfer = ret.name.startsWith('string') ? 'full' : 'container';
     }
     args = args.trim();
     const parsedArgs = [];

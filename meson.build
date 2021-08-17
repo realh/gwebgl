@@ -1,8 +1,12 @@
 project('gwebgl', 'c')
+
+gnome = import('gnome')
+
 deps = [dependency('gdk-pixbuf-2.0'), dependency('glesv2')]
 gwebgl_c = custom_target('gwebgl_c',
   output: ['rendering-context-base.c', 'rendering-context.c',
-    'rendering-context-base.h', 'rendering-context.h', 'handle-types.h'],
+    'rendering-context-base.h', 'rendering-context.h', 'handle-types.h',
+    'gwebgl.h'],
   input: 'js/gic/main.js',
   command: ['gjs', '-m', '@INPUT@', '@SOURCE_ROOT@/ref', '@BUILD_ROOT@'],
   depend_files: files(
@@ -26,5 +30,18 @@ gwebgl_c = custom_target('gwebgl_c',
     'js/class-builder.js'
   )
 )
+#gi_sources = [gwebgl_c[0], gwebgl_c[1], gwebgl_c[4]]
 
-library('gwebgl', [gwebgl_c[0], gwebgl_c[1]], dependencies: deps)
+libgwebgl = library('gwebgl', [gwebgl_c[0], gwebgl_c[1]], dependencies: deps)
+
+webgl_gir = gnome.generate_gir(
+    libgwebgl,
+    sources: gwebgl_c,
+    namespace: 'Gwebgl',
+    nsversion: '1.0',
+    identifier_prefix: 'Gwebgl',
+    symbol_prefix: 'gwebgl',
+    includes: ['GObject-2.0', 'GdkPixbuf-2.0'],
+    header: 'gwebgl/gwebgl.h',
+    install: true,
+)
