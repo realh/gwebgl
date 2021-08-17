@@ -20,17 +20,15 @@ export class GICGenerator {
             name = name.replace('Overloads', '');
         }
         let additionalIncludes = [];
-        let final = true;
+        let final = false;
         let parent;
         if (name == 'WebGLRenderingContext') {
-            final = true;
             additionalIncludes.push('<gwebgl/rendering-context-base.h>');
             parent = 'GwebglWebGLRenderingContextBase';
             if (enableGdkPixbuf) {
                 additionalIncludes.push('<gdk-pixbuf/gdk-pixbuf.h>');
             }
         } else {
-            final = false;
             parent = 'GObject';
         }
         const baseName = this.nameTx.fileBaseName(name);
