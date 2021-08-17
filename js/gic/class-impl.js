@@ -19,7 +19,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
 
     filterProps() {
         super.filterProps();
-        if (this.name = 'WebGLRenderingContextBase') {
+        if (this.name == 'WebGLRenderingContextBase') {
             let canvasProps = [
                 this.props.findIndex(p => p.name == 'canvas'),
                 this.props.findIndex(p => p.name == 'drawingBufferWidth'),
@@ -35,6 +35,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     buildClass(name, members, final, parent) {
+        this.name = name;
         this.gClassName = this.nameTx.classNameFromJS(name);
         this.classNameLower = this.nameTx.loweredClassName(name);
         this.classNameUpper = this.nameTx.upperedClassName(name);
@@ -50,21 +51,32 @@ export class ClassImplementationBuilder extends ClassBuilder {
             this.priv = false;
         }
         */
-       this.priv = false;
+        this.priv = false;
         super.buildClass(name, members, final, parent);
     }
 
     getHeader() {
-        return [`#include "${this.nameTx.fileBaseName(this.name)}.h"`];
+        const header = [`#include "${this.nameTx.fileBaseName(this.name)}.h"`];
+        return header;
     }
 
     getClassOpener() {
-        const lines = this.priv ? ['typedef struct {'] :
-            [`struct _${this.gClassName} {`,
-             `    ${this.parent} parent_instance;`];
-        const props = this.getPropertyBackings();
-        lines.push(...props);
-        lines.push(`}${this.priv ? ` ${this.gClassName}Private;` : ';'}`, '');
+        const lines = [];
+        if (this.final) {
+            lines.push(`struct _${this.gClassName} {`,
+             `    ${this.parent} parent_instance;`);
+        } else if (this.priv) {
+            lines.push('typedef struct {');
+        }
+        if (this.final || this.priv) {
+            const props = this.getPropertyBackings();
+            lines.push(...props);
+        }
+        if (this.final) {
+            lines.push('};');
+        } else if (this.priv) {
+            lines.push(`} ${this.gClassName}Private;`);
+        }
         const withPrivate = this.priv ? '_WITH_PRIVATE' : '';
         let parentUpper = this.nameTx.upperedClassName(this.parent);
         if (!this.parent.startsWith('Gwebgl') &&

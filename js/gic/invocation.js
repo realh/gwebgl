@@ -45,7 +45,7 @@ export function adaptMethodForInvocation(m) {
             if (tn?.includes('Array')) {
                 if (methodNeedsArrayLength(m))
                 {
-                    let div = tn.match(/([0-9]*)Array/)?.[1] ?? '8';
+                    let div = tn.match(/([0-9]*)Array/)?.[1] || '8';
                     div = Number(div);
                     if (div !== NaN) {
                         div /= 8;
@@ -60,7 +60,11 @@ export function adaptMethodForInvocation(m) {
                 // readPixels we can't use const, so it's easiest just to never
                 // use const
                 a.name = `(gpointer) ${a.name}->data`;
-            } else if (tn == 'GLintptr') {
+            } else if (tn == 'GLintptr' &&
+                !m.name.startsWith('bufferSubDataFromByteArray'))
+            {
+                // Mostly WebGL uses GLintptr for actual pointers, but in
+                // bufferSubData it's used for an int offset
                 a.name = '(gconstpointer) ' + a.name;
             } 
         }
