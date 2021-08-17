@@ -14,7 +14,6 @@ export class GICGenerator {
     }
 
     generate(name, ifaceData, outDir) {
-        outDir += '/gwebgl';
         mkDirWithParents(outDir);
         if (name.endsWith('Overloads')) {
             name = name.replace('Overloads', '');
