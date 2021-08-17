@@ -49,8 +49,18 @@ export class NameTransformer {
     }
 
     fileBaseName(name) {
-        return this.loweredClassName(name).replaceAll('_', '-').
+        let n = this.loweredClassName(name).replaceAll('_', '-').
             replace(/gwebgl-webgl2?-/, '');
+        if (name.includes('WebGL2')) {
+            if (n.includes('context')) {
+                if (!n.includes('context2')) {
+                    n = n.replace('context', 'context2');
+                }
+            } else if (!n.endsWith('2')) {
+                n += '2';
+            }
+        }
+        return n;
     }
 
     // Both names are from the JS/TS API.

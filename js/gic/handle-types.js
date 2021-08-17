@@ -1,4 +1,4 @@
-import {cmdArgs, saveText} from '../sys.js';
+import { saveText } from '../sys.js';
 
 const template = `#ifndef __GWEBGL_HANDLE_TYPES_H
 #define __GWEBGL_HANDLE_TYPES_H
@@ -31,9 +31,11 @@ export function saveHandleTypes(filename) {
     saveText(filename, template);
 }
 
+/*
 if (cmdArgs.length == 2 && cmdArgs[0] == '-o') {
     saveHandleTypes(cmdArgs[1]);
 }
+*/
 
 export const handleTypes = [ 'WebGLProgram', 'WebGLShader',
     'WebGLBuffer', 'WebGLFramebuffer', 'WebGLRenderbuffer',

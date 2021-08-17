@@ -1,19 +1,19 @@
 import { ClassBuilder } from '../class-builder.js';
-import { copyMethod } from '../iface-parser.js';
 import { TextureFromGdkPixbuf } from './gpixbuf.js';
 import { adaptMethodForInvocation } from './invocation.js';
 import { MultiGetter } from './multi-getter.js';
 import { NameTransformer } from './name-tx.js';
 import { OverloadSignaturesProcessor } from './overloads.js';
-import { ReturnedAllocatedResultGenerator, ReturnOutParameter,
+import {
+    ReturnedAllocatedResultGenerator, ReturnOutParameter,
     ShaderActiveVarAllocatedResultGenerator, ShaderPrecisionFixer, StringGetter
 } from './result-buffers.js';
 import { ShaderSource } from './shader-source.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
-    constructor() {
+    constructor(nameTx) {
         super();
-        this.nameTx = new NameTransformer();
+        this.nameTx = nameTx ?? new NameTransformer();
         this.signaturesProcessor = new OverloadSignaturesProcessor();
     }
 

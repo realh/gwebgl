@@ -25,6 +25,10 @@ export function saveText(fileName, text) {
     GLib.file_set_contents(fileName, b);
 }
 
+export function mkDirWithParents(dirname) {
+    GLib.mkdir_with_parents(dirname, 0o755);
+}
+
 // Command line arguments excluding the runner (eg 'gjs') and script filename
 export const cmdArgs = ARGV;
 
