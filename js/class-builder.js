@@ -194,7 +194,7 @@ export class ClassBuilder {
     // name change rules
     static renames = {
         getProgramParameter: 'getProgramiv',
-        getShaderParameter: 'getProgramiv',
+        getShaderParameter: 'getShaderiv',
     }
 
     // abstract getHeader(): string[]
