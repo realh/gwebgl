@@ -8,7 +8,7 @@ import { packageHeader } from './pkg-header.js';
 function main(refsDir, outDir) {
     mkDirWithParents(outDir);
     saveHandleTypes(`${outDir}/handle-types.h`);
-    const generator = new GICGenerator();
+    const generator = new GICGenerator(outDir);
     const wToES = new WebGLToGLES(generator, refsDir, outDir);
     wToES.processAll();
     saveText(`${outDir}/gwebgl.h`, packageHeader);

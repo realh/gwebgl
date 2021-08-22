@@ -1,10 +1,15 @@
 // This is an abstract class that can be used as a base for outputting a class
 // in a specific format.
 
-import { copyMethod } from './iface-parser.js';
+import { copyMethod, showMethodSignature } from './iface-parser.js';
+import { saveText } from './sys.js';
 
 export class ClassBuilder {
     // nameTx: NameTransformer
+
+    constructor(outDir) {
+        this.outDir = outDir;
+    }
 
     // members is a flat array of member objects where a member is a property
     // or method as described in iface-parser.js. Some classes have properties
@@ -27,12 +32,14 @@ export class ClassBuilder {
                 this.methods.push(m);
             }
         }
+        this.saveMethods('orig-methods', this.methods);
         const webgl2 = name.includes('WebGL2');
         this.processParameterGetters(webgl2);
         if (this.signaturesProcessor) {
             this.methods = this.signaturesProcessor.processSignatures(
                 this.methods, webgl2);
         }
+        this.saveMethods('changed-methods', this.methods);
         // Sort to make sure overloads appear consecutively
         const sorter = (a, b) => {
             a = a.name;
@@ -157,6 +164,11 @@ export class ClassBuilder {
             changedMethods.push(m);
         }
         this.methods = changedMethods;
+    }
+
+    saveMethods(leafname, methods) {
+        saveText(`${this.outDir}/${this.name}-${leafname}`,
+            methods.map(m => showMethodSignature(m) + ';').join('\n'));
     }
 
     static ivAndi64vGetters = ['getBufferParameter'];

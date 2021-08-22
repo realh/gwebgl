@@ -11,8 +11,8 @@ import {
 import { ShaderSource } from './shader-source.js';
 
 export class ClassImplementationBuilder extends ClassBuilder {
-    constructor(nameTx) {
-        super();
+    constructor(outDir, nameTx) {
+        super(outDir);
         this.nameTx = nameTx ?? new NameTransformer();
         this.signaturesProcessor = new OverloadSignaturesProcessor();
     }

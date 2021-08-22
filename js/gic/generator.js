@@ -7,10 +7,12 @@ export var enableGdkPixbuf = true;
 
 // Generates GObject-Introspected C source and header files
 export class GICGenerator {
-    constructor() {
+    constructor(outDir) {
         this.nameTx = new NameTransformer();
-        this.headerBuilder = new HeaderClassBuilder(null, null, this.nameTx);
-        this.sourceBuilder = new ClassImplementationBuilder(this.nameTx);
+        this.headerBuilder = new HeaderClassBuilder(outDir,
+            null, null, this.nameTx);
+        this.sourceBuilder = new ClassImplementationBuilder(outDir,
+            this.nameTx);
     }
 
     generate(name, ifaceData, outDir) {

@@ -104,5 +104,6 @@ export function copyMethod(method) {
 
 export function showMethodSignature(m) {
     const args = m.args.map(a => `${a.name}: ${a.type?.name ?? 'any'}`);
-    return `${m.name}(${args}): ${m.returnType?.name | 'void'}`;
+    return `${m.name}(${args}): ${m.returnType.name}`;
+    //return `${m.name}(${args}): ${m.returnType?.name | 'void'}`;
 }
