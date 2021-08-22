@@ -242,6 +242,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     methodBody(m) {
+        const castToString = m.name == 'getString';
         const lines = [];
         lines.push('    (void) self;');
         const create = m.args.length == 2 && m.args[1].name == '&a';
@@ -261,6 +262,9 @@ export class ClassImplementationBuilder extends ClassBuilder {
             m = alloc.adaptMethod(m);
         }
         let s = m.returnType.name == 'void' ? '    ' : '    return ';
+        if (castToString) {
+            s += '(const char *) ';
+        }
         s += this.webGLMethodNameToGLESFunction(m) + '(';
         if (!m.args.length) {
             s += ');';

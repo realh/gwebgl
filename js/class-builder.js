@@ -120,12 +120,19 @@ export class ClassBuilder {
                     } else if (suf == 'b') {
                         // GLboolean is a byte, gboolean is 32-bits
                         rt = {name: 'GLubyte'};
+                    } else if (suf == 'String') {
+                        // GLboolean is a byte, gboolean is 32-bits
+                        rt = {name: 'string'};
                     } else {
                         rt = {name: 'Uint8Array', transfer: 'full'};
                         resultSize = true;
                     }
                     let m2 = copyMethod(m);
-                    m2.name += suf;
+                    if (suf == 'String') {
+                        m2.name = 'getString';
+                    } else {
+                        m2.name += suf;
+                    }
                     m2.returnType = rt;
                     if (resultSize) {
                         m2.args.push({ name: 'resultSize',
@@ -182,7 +189,7 @@ export class ClassBuilder {
     static multiGetters = {
         'getUniform': ['iv', 'fv', 'i', 'f'],
         'getVertexAttrib': ['fv', 'i', 'f'],
-        'getParameter': ['iv', 'fv', 'i', 'f', 'bv', 'b'],
+        'getParameter': ['iv', 'fv', 'i', 'f', 'bv', 'b', 'String'],
     }
 
     // abstract getHeader(): string[]
