@@ -156,8 +156,11 @@ export class ClassBuilder {
                 m2.returnType.name = 'GLfloat';
                 changedMethods.push(m2);
             }
+            if (ClassBuilder.ivGetters.includes(nm)) {
+                m = copyMethod(m);
+                m.returnType.name = 'GLint';
+            }
             if (ClassBuilder.ivAndi64vGetters.includes(nm) ||
-                ClassBuilder.ivGetters.includes(nm) ||
                 ClassBuilder.ivAndfvGetters.includes(nm))
             {
                 m = copyMethod(m);

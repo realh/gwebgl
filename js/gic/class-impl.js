@@ -319,6 +319,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
             nm = nm.replace('FromArray', '');
         } else if (nm.endsWith('FromByteArray')) {
             nm = nm.replace('FromByteArray', '');
+        } else if (ClassBuilder.ivGetters.includes(nm)) {
+            nm = nm + 'iv';
         }
         return `gl${nm.substring(0, 1).toUpperCase()}${nm.substring(1)}`;
     }
