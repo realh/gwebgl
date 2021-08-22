@@ -166,10 +166,6 @@ export class ClassBuilder {
                 m = copyMethod(m);
                 m.name += 'iv';
                 m.returnType.name = 'GLint';
-            } else if (ClassBuilder.ivGettersStripParameter.includes(nm)) {
-                m = copyMethod(m);
-                m.name = nm.replace('Parameter', '') + 'iv';
-                m.returnType.name = 'GLint';
             }
             changedMethods.push(m);
         }
@@ -185,14 +181,20 @@ export class ClassBuilder {
     static ivAndfvGetters = ['getTexParameter'];
 
     static ivGetters = ['getFramebufferAttachmentParameter',
-        'getRenderbufferParameter'];
-    static ivGettersStripParameter = ['getProgramParameter',
-        'getShaderParameter'];
+        'getRenderbufferParameter',
+        'getProgramParameter', 'getShaderParameter'];
 
     static multiGetters = {
         'getUniform': ['iv', 'fv', 'i', 'f'],
         'getVertexAttrib': ['fv', 'i', 'f'],
         'getParameter': ['iv', 'fv', 'i', 'f', 'bv', 'b', 'String'],
+    }
+
+    // Methods which map simply from WebGL to OpenGL but not using the standard
+    // name change rules
+    static renames = {
+        getProgramParameter: 'getProgramiv',
+        getShaderParameter: 'getProgramiv',
     }
 
     // abstract getHeader(): string[]

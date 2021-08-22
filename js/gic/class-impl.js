@@ -313,6 +313,7 @@ export class ClassImplementationBuilder extends ClassBuilder {
 
     webGLMethodNameToGLESFunction(m) {
         let nm = m.hasOwnProperty('name') ? m.name : m;
+        nm = ClassBuilder.renames[nm] || nm;
         if (nm == 'depthRange') {
             nm += 'f';
         } else if (nm.endsWith('FromArray')) {
