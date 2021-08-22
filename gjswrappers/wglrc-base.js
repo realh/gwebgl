@@ -8,6 +8,13 @@
 export function mixinWebGLRenderingContextBase(parentClass, name) {
     const namer = {};
     namer[name] = class extends parentClass {
+        // Converts an ArrayBufferView to an array of bools. gjs returns
+        // Uint8Array, but the elements are actually 4 bytes each.
+        _boolArray(array) {
+            return Array.from(new Int32Array(array.buffer)).map(
+                a => a ? true : false);
+        }
+
         getBufferParameter(target, pname) {
             return this.getBufferParameteriv(target, pname);
         }
@@ -93,10 +100,7 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
                 case this.SAMPLE_COVERAGE_VALUE:
                     return this.getParameterf(pname);
                 case this.COLOR_WRITEMASK:
-                    const v = new Int32Array(
-                        this.getParameterbv(pname, 16).buffer);
-                    return [v[0] ? true : false, v[1] ? true : false, 
-                        v[2] ? true : false, v[3] ? true : false];
+                    return this._boolArray(this.getParameterbv(pname, 16));
                 case this.ALIASED_LINE_WIDTH_RANGE:
                 case this.ALIASED_POINT_SIZE_RANGE:
                 case this.DEPTH_RANGE:
@@ -125,19 +129,107 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
                     return this.getString(pname);
             }
         }
+
+        getActiveAttrib(program, index) {
+            const info = super.getActiveAttrib(program, index);
+            return {type: info[0], size: info[1], name: info[2]};
+        }
+
+        getActiveUniform(program, index) {
+            const info = super.getActiveUniform(program, index);
+            return {type: info[0], size: info[1], name: info[2]};
+        }
+
+        // TODO: With extensions or WebGL 2 this will sometimes need to call
+        // the float version
+        getTexParameter(target, pname) {
+            return this.getTexParameteriv(target, pname);
+        }
+
+        getUniform(program, location) {
+            const info = this.getActiveUniform(program, location);
+            if (info.size < 1) {
+                info.size = 1;
+            }
+            switch (info.type) {
+                case this.FLOAT:
+                    if (info.size == 1) {
+                        return this.getUniformf(program, location);
+                    } else {
+                        return new Float32Array(
+                            this.getUniformfv(
+                                program, location, 4 * info.size).buffer);
+                    }
+                case this.FLOAT_VEC2:
+                    return new Float32Array(
+                        this.getUniformfv(
+                            program, location, 8 * info.size).buffer);
+                case this.FLOAT_VEC3:
+                    return new Float32Array(
+                        this.getUniformfv(
+                            program, location, 12 * info.size).buffer);
+                case this.FLOAT_VEC4:
+                    return new Float32Array(
+                        this.getUniformfv(
+                            program, location, 16 * info.size).buffer);
+                case this.SAMPLER_2D:
+                case this.SAMPLER_CUBE:
+                case this.INT:
+                    if (info.size == 1) {
+                        return this.getUniformi(program, location);
+                    } else {
+                        return new Int32Array(
+                            this.getUniformiv(
+                                program, location, 4 * info.size).buffer);
+                    }
+                case this.INT_VEC2:
+                    return new Int32Array(
+                        this.getUniformiv(
+                            program, location, 8 * info.size).buffer);
+                case this.INT_VEC3:
+                    return new Int32Array(
+                        this.getUniformiv(
+                            program, location, 12 * info.size).buffer);
+                case this.INT_VEC4:
+                    return new Int32Array(
+                        this.getUniformiv(
+                            program, location, 16 * info.size).buffer);
+                case this.BOOL:
+                    if (info.size == 1) {
+                        return this.getUniformi(program, location) ?
+                            true : false;
+                    } else {
+                        return this._boolArray(
+                            this.getUniformiv(
+                                program, location, 4 * info.size));
+                    }
+                case this.BOOL_VEC2:
+                    return this._boolArray(
+                        this.getUniformiv(program, location, 8 * info.size));
+                case this.BOOL_VEC3:
+                    return this._boolArray(
+                        this.getUniformiv(program, location, 12 * info.size));
+                case this.BOOL_VEC4:
+                    return this._boolArray(
+                        this.getUniformiv(program, location, 16 * info.size));
+                case this.FLOAT_MAT2:
+                    return new Float32Array(
+                        this.getUniformfv(
+                            program, location, 16 * info.size).buffer);
+                case this.FLOAT_MAT3:
+                    return new Float32Array(
+                        this.getUniformfv(
+                            program, location, 36 * info.size).buffer);
+                case this.FLOAT_MAT4:
+                    return new Float32Array(
+                        this.getUniformfv(
+                            program, location, 64 * info.size).buffer);
+            }
+        }
     };
     return namer[name];
 }
 
-// getTexParameterfv(target: GLenum, pname: GLenum): GLfloat;
-// getTexParameteriv(target: GLenum, pname: GLenum): GLint;
-getTexParameter(target, pname);
-
-// getUniformiv(program: WebGLProgram, location: WebGLUniformLocation, resultSize: GLint): Uint8Array;
-// getUniformfv(program: WebGLProgram, location: WebGLUniformLocation, resultSize: GLint): Uint8Array;
-// getUniformi(program: WebGLProgram, location: WebGLUniformLocation): GLint;
-// getUniformf(program: WebGLProgram, location: WebGLUniformLocation): GLfloat;
-getUniform(program, location);
 
 // getVertexAttribfv(index: GLuint, pname: GLenum, resultSize: GLint): Uint8Array;
 // getVertexAttribi(index: GLuint, pname: GLenum): GLint;
