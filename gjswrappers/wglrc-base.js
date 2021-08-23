@@ -1,3 +1,5 @@
+import GObject from 'gi://GObject';
+
 // The wrapper methods for WebGLRenderingContextBase are added as a mixin
 // because they may have to be added to more than one base class. For WebGL 1
 // only we can get away with only adding them to WebGLRenderingContext,
@@ -5,7 +7,9 @@
 // would also have to be added to WebGL2RenderingContext, because its GObject
 // version derives directly from the GObject version of WebGLRenderingContext,
 // not this wrapper.
-export function mixinWebGLRenderingContextBase(parentClass, name) {
+// The new class name is 'Gjs_' + parentClass.name
+export function mixinWebGLRenderingContextBase(parentClass) {
+    const name = 'Gjs_' + parentClass.name;
     const namer = {};
     namer[name] = class extends parentClass {
         // Converts an ArrayBufferView to an array of bools. gjs returns
@@ -279,5 +283,5 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
             }
         }
     };
-    return namer[name];
+    return GObject.register_class({GTypeName: name}, namer[name]);
 }
