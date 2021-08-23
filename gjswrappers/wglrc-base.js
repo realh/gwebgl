@@ -16,7 +16,7 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
         }
 
         getBufferParameter(target, pname) {
-            return this.getBufferParameteriv(target, pname);
+            return super.getBufferParameteriv(target, pname);
         }
 
         getParameter(pname) {
@@ -72,7 +72,7 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
                 case this.STENCIL_BACK_VALUE_MASK:
                 case this.STENCIL_BACK_WRITEMASK:
                 case this.STENCIL_WRITEMASK:
-                    return this.getParameteri(pname);
+                    return super.getParameteri(pname);
                 case this.BLEND:
                 case this.CULL_FACE:
                 case this.DEPTH_TEST:
@@ -84,7 +84,7 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
                 case this.STENCIL_TEST:
                 //case this.UNPACK_FLIP_Y_WEB:
                 //case this.UNPACK_PREMULTIPLY_ALPHA_WEB:
-                    return this.getParameterb(pname) ? true : false;
+                    return super.getParameterb(pname) ? true : false;
                 case this.ARRAY_BUFFER_BINDING:
                 case this.ELEMENT_ARRAY_BUFFER_BINDING:
                 case this.FRAMEBUFFER_BINDING:
@@ -92,41 +92,41 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
                 case this.CURRENT_PROGRAM:
                 case this.TEXTURE_BINDING_2D:
                 case this.TEXTURE_BINDING_CUBE_MAP:
-                    return this.getParameteri(pname) || null;
+                    return super.getParameteri(pname) || null;
                 case this.DEPTH_CLEAR_VALUE:
                 case this.LINE_WIDTH:
                 case this.POLYGON_OFFSET_FACTOR:
                 case this.POLYGON_OFFSET_UNITS:
                 case this.SAMPLE_COVERAGE_VALUE:
-                    return this.getParameterf(pname);
+                    return super.getParameterf(pname);
                 case this.COLOR_WRITEMASK:
-                    return this._boolArray(this.getParameterbv(pname, 16));
+                    return this._boolArray(super.getParameterbv(pname, 16));
                 case this.ALIASED_LINE_WIDTH_RANGE:
                 case this.ALIASED_POINT_SIZE_RANGE:
                 case this.DEPTH_RANGE:
                     return new Float32Array(
-                        this.getParameterfv(pname, 8).buffer);
+                        super.getParameterfv(pname, 8).buffer);
                 case this.BLEND_COLOR:
                 case this.COLOR_CLEAR_VALUE:
                     return new Float32Array(
-                        this.getParameterfv(pname, 16).buffer);
+                        super.getParameterfv(pname, 16).buffer);
                 case this.COMPRESSED_TEXTURE_FORMATS:
-                    const n = this.getParameteri(
+                    const n = super.getParameteri(
                         this.NUM_COMPRESSED_TEXTURE_FORMATS);
                     return new Uint32Array(
-                        this.getParameteriv(pname, n).buffer);
+                        super.getParameteriv(pname, n).buffer);
                 case this.MAX_VIEWPORT_DIMS:
                     return new Int32Array(
-                        this.getParameteriv(pname, 8).buffer);
+                        super.getParameteriv(pname, 8).buffer);
                 case this.SCISSOR_BOX:
                 case this.VIEWPORT:
                     return new Int32Array(
-                        this.getParameteriv(pname, 16).buffer);
+                        super.getParameteriv(pname, 16).buffer);
                 case this.RENDERER:
                 case this.SHADING_LANGUAGE_VERSION:
                 case this.VENDOR:
                 case this.VERSION:
-                    return this.getString(pname);
+                    return super.getString(pname);
             }
         }
 
@@ -154,100 +154,130 @@ export function mixinWebGLRenderingContextBase(parentClass, name) {
             switch (info.type) {
                 case this.FLOAT:
                     if (info.size == 1) {
-                        return this.getUniformf(program, location);
+                        return super.getUniformf(program, location);
                     } else {
                         return new Float32Array(
-                            this.getUniformfv(
+                            super.getUniformfv(
                                 program, location, 4 * info.size).buffer);
                     }
                 case this.FLOAT_VEC2:
                     return new Float32Array(
-                        this.getUniformfv(
+                        super.getUniformfv(
                             program, location, 8 * info.size).buffer);
                 case this.FLOAT_VEC3:
                     return new Float32Array(
-                        this.getUniformfv(
+                        super.getUniformfv(
                             program, location, 12 * info.size).buffer);
                 case this.FLOAT_VEC4:
                     return new Float32Array(
-                        this.getUniformfv(
+                        super.getUniformfv(
                             program, location, 16 * info.size).buffer);
                 case this.SAMPLER_2D:
                 case this.SAMPLER_CUBE:
                 case this.INT:
                     if (info.size == 1) {
-                        return this.getUniformi(program, location);
+                        return super.getUniformi(program, location);
                     } else {
                         return new Int32Array(
-                            this.getUniformiv(
+                            super.getUniformiv(
                                 program, location, 4 * info.size).buffer);
                     }
                 case this.INT_VEC2:
                     return new Int32Array(
-                        this.getUniformiv(
+                        super.getUniformiv(
                             program, location, 8 * info.size).buffer);
                 case this.INT_VEC3:
                     return new Int32Array(
-                        this.getUniformiv(
+                        super.getUniformiv(
                             program, location, 12 * info.size).buffer);
                 case this.INT_VEC4:
                     return new Int32Array(
-                        this.getUniformiv(
+                        super.getUniformiv(
                             program, location, 16 * info.size).buffer);
                 case this.BOOL:
                     if (info.size == 1) {
-                        return this.getUniformi(program, location) ?
+                        return super.getUniformi(program, location) ?
                             true : false;
                     } else {
                         return this._boolArray(
-                            this.getUniformiv(
+                            super.getUniformiv(
                                 program, location, 4 * info.size));
                     }
                 case this.BOOL_VEC2:
                     return this._boolArray(
-                        this.getUniformiv(program, location, 8 * info.size));
+                        super.getUniformiv(program, location, 8 * info.size));
                 case this.BOOL_VEC3:
                     return this._boolArray(
-                        this.getUniformiv(program, location, 12 * info.size));
+                        super.getUniformiv(program, location, 12 * info.size));
                 case this.BOOL_VEC4:
                     return this._boolArray(
-                        this.getUniformiv(program, location, 16 * info.size));
+                        super.getUniformiv(program, location, 16 * info.size));
                 case this.FLOAT_MAT2:
                     return new Float32Array(
-                        this.getUniformfv(
+                        super.getUniformfv(
                             program, location, 16 * info.size).buffer);
                 case this.FLOAT_MAT3:
                     return new Float32Array(
-                        this.getUniformfv(
+                        super.getUniformfv(
                             program, location, 36 * info.size).buffer);
                 case this.FLOAT_MAT4:
                     return new Float32Array(
-                        this.getUniformfv(
+                        super.getUniformfv(
                             program, location, 64 * info.size).buffer);
+            }
+        }
+
+        getVertexAttrib(index, pname) {
+            switch (pname) {
+                case VERTEX_ATTRIB_ARRAY_ENABLED:
+                case VERTEX_ATTRIB_ARRAY_NORMALIZED:
+                    return super.getVertexAttribi(index, pname) ? true : false;
+                case VERTEX_ATTRIB_ARRAY_BUFFER_BINDING:
+                case VERTEX_ATTRIB_ARRAY_SIZE:
+                case VERTEX_ATTRIB_ARRAY_STRIDE:
+                case VERTEX_ATTRIB_ARRAY_TYPE:
+                    return super.getVertexAttribi(index, pname);
+                case CURRENT_VERTEX_ATTRIB:
+                    return new Float32Array(
+                        super.getVertexAttribfv(index, pname, 16).buffer);
+            }
+        }
+
+        vertexAttrib1fv(index, values) {
+            if (values instanceof Float32Array) {
+                super.vertexAttrib1fvFromByteArray(index,
+                    new Uint8Array(values.buffer));
+            } else {
+                super.vertexAttrib1fvFromArray(index, values);
+            }
+        }
+
+        vertexAttrib2fv(index, values) {
+            if (values instanceof Float32Array) {
+                super.vertexAttrib2fvFromByteArray(index,
+                    new Uint8Array(values.buffer));
+            } else {
+                super.vertexAttrib2fvFromArray(index, values);
+            }
+        }
+
+        vertexAttrib3fv(index, values) {
+            if (values instanceof Float32Array) {
+                super.vertexAttrib3fvFromByteArray(index,
+                    new Uint8Array(values.buffer));
+            } else {
+                super.vertexAttrib3fvFromArray(index, values);
+            }
+        }
+
+        vertexAttrib4fv(index, values) {
+            if (values instanceof Float32Array) {
+                super.vertexAttrib4fvFromByteArray(index,
+                    new Uint8Array(values.buffer));
+            } else {
+                super.vertexAttrib4fvFromArray(index, values);
             }
         }
     };
     return namer[name];
 }
-
-
-// getVertexAttribfv(index: GLuint, pname: GLenum, resultSize: GLint): Uint8Array;
-// getVertexAttribi(index: GLuint, pname: GLenum): GLint;
-// getVertexAttribf(index: GLuint, pname: GLenum): GLfloat;
-getVertexAttrib(index, pname);
-
-// vertexAttrib1fvFromByteArray(index: GLuint, values: Float32Array): void;
-// vertexAttrib1fvFromArray(index: GLuint, values: GLfloat[]): void;
-vertexAttrib1fv(index, values);
-
-// vertexAttrib2fvFromByteArray(index: GLuint, values: Float32Array): void;
-// vertexAttrib2fvFromArray(index: GLuint, values: GLfloat[]): void;
-vertexAttrib2fv(index, values);
-
-// vertexAttrib3fvFromByteArray(index: GLuint, values: Float32Array): void;
-// vertexAttrib3fvFromArray(index: GLuint, values: GLfloat[]): void;
-vertexAttrib3fv(index, values);
-
-// vertexAttrib4fvFromByteArray(index: GLuint, values: Float32Array): void;
-// vertexAttrib4fvFromArray(index: GLuint, values: GLfloat[]): void;
-vertexAttrib4fv(index, values);
