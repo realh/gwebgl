@@ -1,4 +1,5 @@
 import GObject from 'gi://GObject';
+import Gtk from 'gi://Gtk';
 
 // The wrapper methods for WebGLRenderingContextBase are added as a mixin
 // because they may have to be added to more than one base class. For WebGL 1
@@ -12,6 +13,24 @@ export function mixinWebGLRenderingContextBase(parentClass) {
     const name = 'Gjs_' + parentClass.name;
     const namer = {};
     namer[name] = class extends parentClass {
+        _init(params) {
+            super._init(params);
+        }
+
+        get canvas() {
+            // TODO: We should also be able to use a Gdk context for offscreen
+            // rendering
+            return this.gtk_gl_area;
+        }
+
+        get drawingBufferWidth() {
+            return this.gtk_gl_area.get_allocated_width();
+        }
+
+        get drawingBufferHeight() {
+            return this.gtk_gl_area.get_allocated_height();
+        }
+
         // Converts an ArrayBufferView to an array of bools. gjs returns
         // Uint8Array, but the elements are actually 4 bytes each.
         _boolArray(array) {
@@ -283,5 +302,14 @@ export function mixinWebGLRenderingContextBase(parentClass) {
             }
         }
     };
-    return GObject.register_class({GTypeName: name}, namer[name]);
+    return GObject.register_class({
+        GTypeName: name,
+        Properties: {
+            'gtk-gl-area': GObject.ParamSpec.object(
+                'gtk-gl-area', 'gtk-gl-area', 'GtkGLArea',
+                Gtk.GLArea.$gtype,
+                GObject.ParamFlags.READABLE | GObject.ParamFlags.CONSTRUCT_ONLY
+            ),
+        },
+    }, namer[name]);
 }
