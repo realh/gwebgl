@@ -33,7 +33,7 @@ gcc -o build/cdemo `pkg-config --cflags --libs gtk4 glesv2` -I./build -L./build 
 ```
 Run it with:
 ```
-LD_LIBRARY_PATH=./buil ./build/cdemo
+LD_LIBRARY_PATH=./build ./build/cdemo
 ```
 
 ## License
