@@ -29,7 +29,7 @@ installing them.
 
 To compile the C equivalent of the demo:
 ```
-gcc -o build/cdemo `pkg-config --cflags --libs gtk4 glesv2` -L./build -lgwebgl cdemo.c
+gcc -o build/cdemo `pkg-config --cflags --libs gtk4 glesv2` -I./build -L./build -lgwebgl cdemo.c
 ```
 Run it with:
 ```
