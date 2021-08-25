@@ -5,7 +5,36 @@ wrapper library for [OpenGL ES](https://www.khronos.org/opengles/). The API is
 designed so that when it's bound to Javascript with gjs the API is as close as
 possible to [WebGL](https://www.khronos.org/webgl/).
 
-The project is nowhere near ready for use yet, check back later.
+## Status
+
+It can now generate a GI library which in theory fully supports all of WebGL 1,
+with the help of Javascript wrappers (supplied in the `gjswrappers` folder).
+However, in preliminary testing it doesn't work in gjs with GTK4. No errors are
+reported, the widget just stays blank (it should be cleared to black). It works
+with GTK3, and equivalent C code works in GTK4. Weird.
+
+## Building
+
+Install meson and development files for gobject-introspection, OpenGL ES and
+GTK (3 or 4). It might work on MacOS with
+[ANGLE](https://github.com/google/angle) but this is untested.
+```
+meson setup build
+meson compile -C build
+```
+
+`rundemo.sh` runs the very simple example program with some environment
+variables set up to use the files from the `build` subdirectory without
+installing them.
+
+To compile the C equivalent of the demo:
+```
+gcc -o build/cdemo `pkg-config --cflags --libs gtk4 glesv2` -L./build -lgwebgl cdemo.c
+```
+Run it with:
+```
+LD_LIBRARY_PATH=./buil ./build/cdemo
+```
 
 ## License
 
