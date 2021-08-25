@@ -2,6 +2,15 @@
 #include <GLES2/gl2.h>
 #include "gwebgl.h"
 
+static gboolean tick(GtkGLArea *glarea)
+{
+    if (gtk_widget_get_realized(GTK_WIDGET(glarea)))
+    {
+        gtk_gl_area_queue_render(glarea);
+    }
+    return TRUE;
+}
+
 gboolean render(GtkGLArea *glarea, GwebglWebGLRenderingContextBase *gl)
 {
     (void) glarea;
@@ -31,6 +40,7 @@ void activate(GtkApplication *app)
     gtk_window_set_child(GTK_WINDOW(win), canvas);
     gtk_window_present(GTK_WINDOW(win));
 #endif
+    g_timeout_add(1000, G_SOURCE_FUNC(tick), glarea);
 }
 
 int main(int argc, char **argv)
