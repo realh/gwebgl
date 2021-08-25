@@ -302,13 +302,14 @@ export function mixinWebGLRenderingContextBase(parentClass) {
             }
         }
     };
-    return GObject.register_class({
+    return GObject.registerClass({
         GTypeName: name,
         Properties: {
-            'gtk-gl-area': GObject.ParamSpec.object(
+            'gtk-gl-area': GObject.param_spec_object(
                 'gtk-gl-area', 'gtk-gl-area', 'GtkGLArea',
                 Gtk.GLArea.$gtype,
-                GObject.ParamFlags.READABLE | GObject.ParamFlags.CONSTRUCT_ONLY
+                GObject.ParamFlags.READABLE | GObject.ParamFlags.WRITABLE |
+                    GObject.ParamFlags.CONSTRUCT_ONLY,
             ),
         },
     }, namer[name]);

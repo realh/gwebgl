@@ -6,7 +6,7 @@ import {mixinWebGLRenderingContextBase} from './wglrc-base.js';
 const Gjs_WebGLRenderingContext = mixinWebGLRenderingContextBase(
     Gwebgl.WebGLRenderingContext);
 
-export const WebGLRenderingContext = GObject.register_class({
+export const WebGLRenderingContext = GObject.registerClass({
     GTypeName: 'WebGLRenderingContext'
 }, class WebGLRenderingContext extends Gjs_WebGLRenderingContext {
     bufferData(target, data, usage) {
