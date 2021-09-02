@@ -10,10 +10,9 @@ function render(glarea, gl) {
     print('render');
     if (!rendered) {
         rendered = true;
-        const context = glarea.get_context();
-        const es = context.get_use_es();
-        const version = context.get_version();
-        print(`es ${es} version ${version}`);
+        const ctx = glarea.get_context();
+        printerr('At first render: ' +
+            `${ctx.get_required_version()} ES ${ctx.get_use_es()}`);
     }
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -45,9 +44,14 @@ function activate(app) {
                 const surface = glarea.get_native().get_surface();
                 ctx = surface.create_gl_context();
             }
+            printerr(`Created a ${ctx.constructor.$gtype.name}`);
             ctx.set_debug_enabled(true);
+            printerr('Newly created context has required_version ' +
+                `${ctx.get_required_version()} ES ${ctx.get_use_es()}`);
+            ctx.set_use_es(1);
             ctx.set_required_version(2, 0);
-            ctx.set_use_es(true);
+            printerr('After requesting ES 2.0: ' +
+                `${ctx.get_required_version()} ES ${ctx.get_use_es()}`);
             return ctx;
         } catch (e) {
             logError(e);

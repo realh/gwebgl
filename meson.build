@@ -2,7 +2,7 @@ project('gwebgl', 'c')
 
 gnome = import('gnome')
 
-deps = [dependency('gdk-pixbuf-2.0'), dependency('glesv2')]
+deps = [dependency('gdk-pixbuf-2.0'), dependency('epoxy')]
 gwebgl_c = custom_target('gwebgl_c',
   output: ['rendering-context-base.c', 'rendering-context.c',
     'rendering-context-base.h', 'rendering-context.h', 'handle-types.h',

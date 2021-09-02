@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-#include <GLES2/gl2.h>
+#include <epoxy/gl.h>
 #include "gwebgl.h"
 
 static gboolean tick(GtkGLArea *glarea)

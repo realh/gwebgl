@@ -25,6 +25,7 @@ export class HeaderClassBuilder extends ClassBuilder {
             `#define ${this.sentinel}`,
             ''
         ];
+        /*
         if (!this.glHeaderName) {
             inc.push('#ifndef GL_GLES_PROTOTYPES',
                 '#include <GLES2/gl2.h>',
@@ -33,6 +34,8 @@ export class HeaderClassBuilder extends ClassBuilder {
         } else {
             inc.push(`#include <${this.glHeaderName}>`);
         }
+        */
+        inc.push(`#include <epoxy/gl.h>`);
         inc.push('#include <glib-object.h>');
         inc.push('#include "handle-types.h"');
         for (const i of this.additionalIncludes) {
