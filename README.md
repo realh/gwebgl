@@ -9,9 +9,9 @@ possible to [WebGL](https://www.khronos.org/webgl/).
 
 It can now generate a GI library which in theory fully supports all of WebGL 1,
 with the help of Javascript wrappers (supplied in the `gjswrappers` folder).
-However, in preliminary testing it doesn't work in gjs with GTK4. No errors are
-reported, the widget just stays blank (it should be cleared to black). It works
-with GTK3, and equivalent C code works in GTK4. Weird.
+However, gjs returns undefined for all the upper-case constant property values,
+so I'll need to add a workaround. Making the wrappers auto-generated and moving
+the constants into them is probably the best option for run-time efficiency.
 
 # Building
 
