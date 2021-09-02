@@ -1,5 +1,6 @@
 import Gtk from 'gi://Gtk?version=4.0';
 import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
 import Gwebgl from 'gi://Gwebgl';
 const WebGLRenderingContext = Gwebgl.WebGLRenderingContext;
@@ -30,6 +31,17 @@ function activate(app) {
     //glarea.set_required_version(2, 0);
     //glarea.set_use_es(true);
     const gl = new WebGLRenderingContext();
+    const specs = GObject.Object.list_properties.call(gl)
+    printerr("WebGLRenderingContext properties:")
+    for (const p of specs) {
+        printerr(`  ${p.get_name()}`)
+    }
+    printerr(`gl.COLOR_BUFFER_BIT: ${gl.COLOR_BUFFER_BIT}`)
+    printerr(`gl['COLOR-BUFFER-BIT']: ${gl['COLOR-BUFFER-BIT']}`)
+    printerr('pspec for COLOR-BUFFER-BIT: ' +
+        GObject.Object.find_property.call(gl, 'COLOR-BUFFER-BIT')?.get_name())
+    printerr('pspec for COLOR_BUFFER_BIT: ' +
+        GObject.Object.find_property.call(gl, 'COLOR_BUFFER_BIT')?.get_name())
     glarea.connect('render', () => {
         render(glarea, gl);
         return true;

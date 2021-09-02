@@ -343,9 +343,10 @@ export class ClassImplementationBuilder extends ClassBuilder {
 
     paramSpec(prop) {
         const n = `"${prop.name}"`;
+        const hyphenated = n.replaceAll('_', '-')
         const gpst = this.nameTx.gParamSpecType(prop.type);
         const lines = [`g_param_spec_${gpst}(`,
-            `        ${n},`, `        ${n},`, `        ${n},`];
+            `        ${hyphenated},`, `        ${n},`, `        ${n},`];
         let minmax = '        ';
         if (gpst.includes("int") || gpst.includes("float")) {
             const u = gpst.toUpperCase();
