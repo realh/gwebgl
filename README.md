@@ -5,9 +5,13 @@ wrapper library for [OpenGL ES](https://www.khronos.org/opengles/). The API is
 designed so that when it's bound to Javascript with gjs the API is as close as
 possible to [WebGL](https://www.khronos.org/webgl/).
 
-At the moment it sort of works, but only when linked with a conventional C
-program. When used from gjs the gl functions seem to do nothing, without
-generating any errors. This is a big problem...
+## Status
+
+It can now generate a GI library which in theory fully supports all of WebGL 1,
+with the help of Javascript wrappers (supplied in the `gjswrappers` folder).
+However, in preliminary testing it doesn't work in gjs with GTK4. No errors are
+reported, the widget just stays blank (it should be cleared to black). It works
+with GTK3, and equivalent C code works in GTK4. Weird.
 
 # Building
 
@@ -31,20 +35,25 @@ Installation is not supported yet.
 Currently, [requesting a GLES context in GTK/GDK from code gets
 ignored](https://gitlab.gnome.org/GNOME/gtk/-/issues/4221). If you're lucky your
 distro will have GTK built with certain debugging features enabled, then you can
-set the environment variable `GDK_DEBUG=gl-gles`. This works in Arch Linux.
+set the environment variable `GDK_DEBUG=gl-gles`. This works in Arch Linux, but
+I haven't tried other distros.
 
 The demos are supposed to simply use gl.clear to make the window background
-black. I was planning on something more interesting, but there isn't much point
-until I can get it working in gjs. The C demo works as expected, the gjs demo
-fails to change the background colour from GTK's default.
+black. I was planning on something more interesting, but I want to try to fix
+the GTK4/gjs issue first. The C demo works as expected, the gjs demo
+fails to change the background colour from GTK's default when run with GTK4.
 
-The gjs demo can be run via the `rundemo.sh` script.  To compile and run the C
+The gjs demo can be run via the `rundemo.sh` script. To use GTK3 instead of
+GTK4 change the 4 to 3 on the first line of `demo.js`.
+
+To compile and run the C
 demo from the source directory without installing:
 
 ```
 gcc -o cdemo `pkg-config --cflags --libs gtk4 epoxy` -I./build -L./build -lgwebgl cdemo.c
 GDK_DEBUG=gl-gles,opengl MESA_DEBUG=1 LD_LIBRARY_PATH=./build ./cdemo
 ```
+For GTK3 change the `gtk4` above to `gtk+-3.0`.
 
 ## License
 
