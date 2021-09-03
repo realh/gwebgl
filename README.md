@@ -5,14 +5,6 @@ wrapper library for [OpenGL ES](https://www.khronos.org/opengles/). The API is
 designed so that when it's bound to Javascript with gjs the API is as close as
 possible to [WebGL](https://www.khronos.org/webgl/).
 
-## Status
-
-It can now generate a GI library which in theory fully supports all of WebGL 1,
-with the help of Javascript wrappers (supplied in the `gjs_src` folder).
-However, gjs returns undefined for all the upper-case constant property values,
-so I'll need to add a workaround. Making the wrappers auto-generated and moving
-the constants into them is probably the best option for run-time efficiency.
-
 # Building
 
 You need meson and headers etc for GTK (you can use either GTK3 or 4), epoxy and
@@ -30,7 +22,22 @@ meson compile -C build
 
 Installation is not supported yet.
 
-# Info
+# Using the library
+
+Javascript wrappers are required to provide (almost) full WebGL compatibility;
+these are provided in the `gjs_src` folder. gjs doesn't really have an
+infrastructure, so simply copy them into your own project. Adapt the gi imports
+if you're not using ES6 module imports.
+
+Create a rendering context with:
+```
+const gl = new WebGLRenderingContext();
+gl.gtk_gl_area = myGtkGLAreaWidget;
+```
+where `myGtkGLAreaWidget` is the GtkGLArea you're running the context in. This
+will be used as the context's `canvas` property.
+
+# OpenGL ES with GTK
 
 Currently, [requesting a GLES context in GTK/GDK from code gets
 ignored](https://gitlab.gnome.org/GNOME/gtk/-/issues/4221). If you're lucky your
@@ -38,22 +45,29 @@ distro will have GTK built with certain debugging features enabled, then you can
 set the environment variable `GDK_DEBUG=gl-gles`. This works in Arch Linux, but
 I haven't tried other distros.
 
-The demos are supposed to simply use gl.clear to make the window background
-black. I was planning on something more interesting, but I want to try to fix
-the GTK4/gjs issue first. The C demo works as expected, the gjs demo
-fails to change the background colour from GTK's default when run with GTK4.
+The demos currently simply use gl.clear to make the window background
+black. The C demo is a leftover from early debugging, and the gjs demo will be
+developed into something more interesting.
 
 The gjs demo can be run via the `rundemo.sh` script. To use GTK3 instead of
 GTK4 change the 4 to 3 on the first line of `demo.js`.
 
-To compile and run the C
-demo from the source directory without installing:
+To compile and run the C demo from the source directory without installing:
 
 ```
 gcc -o cdemo `pkg-config --cflags --libs gtk4 epoxy` -I./build -L./build -lgwebgl cdemo.c
 GDK_DEBUG=gl-gles,opengl MESA_DEBUG=1 LD_LIBRARY_PATH=./build ./cdemo
 ```
 For GTK3 change the `gtk4` above to `gtk+-3.0`.
+
+# How the constants are modelled
+
+The generated C code for classes that include property constants in WebGL stores
+them in hash tables which are available via static methods. The JS wrappers
+read these tables and add properties to the class prototypes. This is the
+simplest way and reasonably efficient at run-time after the classes have been
+defined. Conventional GObject properties don't work here because gjs doesn't
+support them with upper case names.
 
 ## License
 
