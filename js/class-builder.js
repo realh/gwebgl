@@ -172,6 +172,8 @@ export class ClassBuilder {
         this.methods = changedMethods;
     }
 
+    // This only needs to be called once per class, so it can be overridden
+    // to do nothing where it would be redundant
     saveMethods(leafname, methods) {
         saveText(`${this.outDir}/${this.name}-${leafname}`,
             methods.map(m => showMethodSignature(m) + ';').join('\n'));

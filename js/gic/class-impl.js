@@ -70,13 +70,6 @@ export class ClassImplementationBuilder extends ClassBuilder {
             `    ${this.gClassName}, ${this.classNameLower}, \\`,
             `    ${parentUpper[0]}_TYPE_${parentUpper.slice(1).join('_')});`,
             '');
-        // class_init()
-        lines.push('static void ' +
-                this.nameTx.methodNameFromJS('class_init', this.name) + '(',
-                '    ' + this.gClassName + 'Class *klass)',
-                '{',
-                '    (void) klass;');
-        lines.push('}', '');
         // instance init()
         lines.push('static void ' +
                 this.nameTx.methodNameFromJS('init', this.name) + '(',
@@ -86,11 +79,44 @@ export class ClassImplementationBuilder extends ClassBuilder {
     }
 
     getPropertyDeclarations() {
-        return [];
+        const lines = [];
+
+        if (this.props.length) {
+            const template = `
+static GHashTable *webgl_constants;
+
+/**
+ * ${this.gClassName}_get_webgl_constants:
+ * Returns: (transfer none) (element-type utf8 guint):
+ */
+GHashTable *${this.gClassName}_get_webgl_constants()
+{
+    return webgl_constants;
+}
+`;
+            lines.push(...template.split('\n'));
+        }
+
+        lines.push('static void ' +
+                this.nameTx.methodNameFromJS('class_init', this.name) + '(',
+                '    ' + this.gClassName + 'Class *klass)',
+                '{',
+                '    (void) klass;');
+        if (this.props.length) {
+            lines.push('    webgl_constants = g_hash_table_new(g_str_hash, ' +
+                'g_str_equal);');
+        }
+        for (const p of this.props) {
+            lines.push('    g_hash_table_insert(webgl_constants, ',
+                `        "${p.name}", (gconstpointer *) GL_${p.name});`);
+        }
+        lines.push('}', '');
+        return lines;
     }
 
     getFunctionDeclarations() {
         const lines = [];
+ 
         for (const m of this.methods) {
             const sig = this.nameTx.methodSignature(m, this.name);
             if (sig[0].startsWith('//')) { continue; }

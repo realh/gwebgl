@@ -20,6 +20,9 @@ export class HeaderClassBuilder extends ClassBuilder {
         super.buildClass(name, members, final, parent);
     }
 
+    saveMethods(leafName, methods) {
+    }
+
     getHeader() {
         let inc = [`#ifndef ${this.sentinel}`,
             `#define ${this.sentinel}`,
@@ -95,7 +98,9 @@ export class HeaderClassBuilder extends ClassBuilder {
     }
 
     getClassCloser() {
-        return [];
+        return this.props.length ?
+            [`GHashTable *${this.gClassName}_get_webgl_constants();`, ''] :
+            [];
     }
 
     getFooter() {
