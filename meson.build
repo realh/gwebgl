@@ -49,3 +49,8 @@ webgl_gir = gnome.generate_gir(
     header: 'gwebgl/gwebgl.h',
     install: true,
 )
+
+install_data('gjs_src/WebGLRenderingContextBase.js',
+  'gjs_src/WebGLRenderingContext.js')
+install_data('README.md',
+  install_dir: get_option('datadir')/'doc'/'gwebgl')

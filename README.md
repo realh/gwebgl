@@ -12,22 +12,34 @@ OpenGL.
 
 First time only:
 ```
-meson setup build
+meson setup build .
 ```
 
 Then:
 ```
 meson compile -C build
+meson install -C build
 ```
 
-Installation is not supported yet.
+You may need to change the installation prefix to /usr for gobject-introspection
+to work. Do this by chaging the setup command:
+```
+meson setup --prefix=/usr build .
+```
+or run:
+```
+meson configure --prefix=/usr build
+```
 
 # Using the library
 
 Javascript wrappers are required to provide (almost) full WebGL compatibility;
-these are provided in the `gjs_src` folder. gjs doesn't really have an
-infrastructure, so simply copy them into your own project. Adapt the gi imports
-if you're not using ES6 module imports.
+these are provided in the `gjs_src` folder in the source tree and installed
+in `{datadir}/gwebgl`. `{datadir}` defaults to `{prefix}/share` where `{prefix}`
+is usually `/usr/local` for manual installations and `/usr` for distro packages.
+gjs doesn't really have an infrastructure for JS libraries, so simply copy the
+JS files into your own project. Adapt the gi imports if you're not using ES6
+module imports.
 
 Create a rendering context with:
 ```
