@@ -17,6 +17,23 @@ export class ClassImplementationBuilder extends ClassBuilder {
         this.signaturesProcessor = new OverloadSignaturesProcessor();
     }
 
+    filterProps() {
+        super.filterProps();
+        if (this.name == 'WebGLRenderingContextBase') {
+            let canvasProps = [
+                this.props.findIndex(p => p.name == 'canvas'),
+                this.props.findIndex(p => p.name == 'drawingBufferWidth'),
+                this.props.findIndex(p => p.name == 'drawingBufferHeight'),
+            ];
+            // Reverse sort the indices so that removing their elements doesn't
+            // invalid subsequent indices
+            canvasProps = canvasProps.filter(i => i >= 0).sort().reverse();
+            for (const i of canvasProps) {
+                this.props.splice(i, 1);
+            }
+        }
+    }
+
     buildClass(name, members, final, parent) {
         this.name = name;
         this.gClassName = this.nameTx.classNameFromJS(name);
