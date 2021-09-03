@@ -2,6 +2,8 @@ project('gwebgl', 'c')
 
 gnome = import('gnome')
 
+gwincdir = get_option('includedir') / 'gwebgl'
+
 deps = [dependency('gdk-pixbuf-2.0'), dependency('epoxy')]
 gwebgl_c = custom_target('gwebgl_c',
   output: ['rendering-context-base.c', 'rendering-context.c',
@@ -28,11 +30,13 @@ gwebgl_c = custom_target('gwebgl_c',
     'js/gic/result-buffers.js',
     'js/webgl-to-gles.js',
     'js/class-builder.js'
-  )
+  ),
+  install: true,
+  install_dir: [false, false, gwincdir, gwincdir, gwincdir, gwincdir]
 )
-#gi_sources = [gwebgl_c[0], gwebgl_c[1], gwebgl_c[4]]
 
-libgwebgl = library('gwebgl', [gwebgl_c[0], gwebgl_c[1]], dependencies: deps)
+libgwebgl = library('gwebgl', [gwebgl_c[0], gwebgl_c[1]], dependencies: deps,
+    install: true)
 
 webgl_gir = gnome.generate_gir(
     libgwebgl,
