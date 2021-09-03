@@ -37,6 +37,9 @@ gl.gtk_gl_area = myGtkGLAreaWidget;
 where `myGtkGLAreaWidget` is the GtkGLArea you're running the context in. This
 will be used as the context's `canvas` property.
 
+Where WebGL expects an image source, for example the overload of `texImage2D`
+that doesn't take raw data, use a GdkPixbuf.
+
 # OpenGL ES with GTK
 
 Currently, [requesting a GLES context in GTK/GDK from code gets
