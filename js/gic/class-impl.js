@@ -125,7 +125,8 @@ GHashTable *${this.gClassName}_get_webgl_constants()
         }
         for (const p of this.props) {
             lines.push('    g_hash_table_insert(webgl_constants, ',
-                `        "${p.name}", (gconstpointer *) GL_${p.name});`);
+                `        "${p.name}", `,
+                `(gconstpointer *) GL_${p.name});`);
         }
         lines.push('}', '');
         return lines;
