@@ -98,9 +98,13 @@ export class HeaderClassBuilder extends ClassBuilder {
     }
 
     getClassCloser() {
-        return this.props.length ?
-            [`GHashTable *${this.gClassName}_get_webgl_constants();`, ''] :
-            [];
+        if (this.props.length) {
+            const getterName = this.nameTx.methodNameFromJS(
+                'get_webgl_constants', this.name)
+            return [`GHashTable *${getterName}();`, ''];
+        } else {
+            return [];
+        }
     }
 
     getFooter() {

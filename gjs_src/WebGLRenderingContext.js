@@ -1,7 +1,7 @@
 import GObject from 'gi://GObject';
 import Gwebgl from 'gi://Gwebgl';
 
-import {mixinWebGLRenderingContextBase} from './wglrc-base.js';
+import {mixinWebGLRenderingContextBase} from './WebGLRenderingContextBase.js';
 
 const Gjs_WebGLRenderingContext = mixinWebGLRenderingContextBase(
     Gwebgl.WebGLRenderingContext);

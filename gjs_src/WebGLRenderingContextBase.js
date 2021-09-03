@@ -1,5 +1,6 @@
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
+import Gwebgl from 'gi://Gwebgl';
 
 // The wrapper methods for WebGLRenderingContextBase are added as a mixin
 // because they may have to be added to more than one base class. For WebGL 1
@@ -302,6 +303,7 @@ export function mixinWebGLRenderingContextBase(parentClass) {
             }
         }
     };
+    addGLConstants(Gwebgl.WebGLRenderingContextBase, namer[name].prototype);
     return GObject.registerClass({
         GTypeName: name,
         Properties: {
@@ -313,4 +315,11 @@ export function mixinWebGLRenderingContextBase(parentClass) {
             ),
         },
     }, namer[name]);
+}
+
+export function addGLConstants(giBaseClass, proto) {
+    const hash = giBaseClass.get_webgl_constants();
+    for (const [k, v] of Object.entries(hash)) {
+        Object.defineProperty(proto, k, {value: v});
+    }
 }

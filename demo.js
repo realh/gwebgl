@@ -2,8 +2,9 @@ import Gtk from 'gi://Gtk?version=4.0';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
-import Gwebgl from 'gi://Gwebgl';
-const WebGLRenderingContext = Gwebgl.WebGLRenderingContext;
+//import Gwebgl from 'gi://Gwebgl';
+//const WebGLRenderingContext = Gwebgl.WebGLRenderingContext;
+import {WebGLRenderingContext} from './gjs_src/WebGLRenderingContext.js';
 
 let rendered = false;
 

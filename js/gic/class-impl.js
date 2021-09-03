@@ -99,14 +99,16 @@ export class ClassImplementationBuilder extends ClassBuilder {
         const lines = [];
 
         if (this.props.length) {
+            const getterName = this.nameTx.methodNameFromJS(
+                'get_webgl_constants', this.name)
             const template = `
 static GHashTable *webgl_constants;
 
 /**
- * ${this.gClassName}_get_webgl_constants:
+ * ${getterName}:
  * Returns: (transfer none) (element-type utf8 guint):
  */
-GHashTable *${this.gClassName}_get_webgl_constants()
+GHashTable *${getterName}()
 {
     return webgl_constants;
 }
