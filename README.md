@@ -18,7 +18,7 @@ meson setup build .
 Then:
 ```
 meson compile -C build
-meson install -C build
+sudo meson install -C build
 ```
 
 You may need to change the installation prefix to /usr for gobject-introspection
