@@ -17,23 +17,6 @@ export class ClassImplementationBuilder extends ClassBuilder {
         this.signaturesProcessor = new OverloadSignaturesProcessor();
     }
 
-    filterProps() {
-        super.filterProps();
-        if (this.name == 'WebGLRenderingContextBase') {
-            let canvasProps = [
-                this.props.findIndex(p => p.name == 'canvas'),
-                this.props.findIndex(p => p.name == 'drawingBufferWidth'),
-                this.props.findIndex(p => p.name == 'drawingBufferHeight'),
-            ];
-            // Reverse sort the indices so that removing their elements doesn't
-            // invalid subsequent indices
-            canvasProps = canvasProps.filter(i => i >= 0).sort().reverse();
-            for (const i of canvasProps) {
-                this.props.splice(i, 1);
-            }
-        }
-    }
-
     buildClass(name, members, final, parent) {
         this.name = name;
         this.gClassName = this.nameTx.classNameFromJS(name);
@@ -68,10 +51,6 @@ export class ClassImplementationBuilder extends ClassBuilder {
         } else if (this.priv) {
             lines.push('typedef struct {');
         }
-        if (this.final || this.priv) {
-            const props = this.getPropertyBackings();
-            lines.push(...props);
-        }
         if (this.final) {
             lines.push('};');
         } else if (this.priv) {
@@ -91,6 +70,13 @@ export class ClassImplementationBuilder extends ClassBuilder {
             `    ${this.gClassName}, ${this.classNameLower}, \\`,
             `    ${parentUpper[0]}_TYPE_${parentUpper.slice(1).join('_')});`,
             '');
+        // class_init()
+        lines.push('static void ' +
+                this.nameTx.methodNameFromJS('class_init', this.name) + '(',
+                '    ' + this.gClassName + 'Class *klass)',
+                '{',
+                '    (void) klass;');
+        lines.push('}', '');
         // instance init()
         lines.push('static void ' +
                 this.nameTx.methodNameFromJS('init', this.name) + '(',
@@ -99,132 +85,8 @@ export class ClassImplementationBuilder extends ClassBuilder {
         return lines;
     }
 
-    getPropertyBackings() {
-        const lines = [];
-        for (const p of this.props) {
-            if (p.construct) {
-                const t = this.errorCheckedTypeConversion({
-                    type: p.type,
-                    memberOf: this.name
-                });
-                lines.push(`    ${t}${p.name};`);
-            }
-        }
-        return lines;
-    }
-
     getPropertyDeclarations() {
-        const lines = [];
-        for (const p of this.props) {
-            if (p.construct) {
-                const getter = {
-                    name: 'get_' + p.name,
-                    args: [],
-                    returnType: p.type
-                }
-                lines.push(this.nameTx.methodSignature(getter, this.name));
-                lines.push('{');
-                if (this.priv) {
-                    lines.push(...this.priv);
-                }
-                lines.push(`    return ${this.priv ? 'priv' : 'self'}->` +
-                    `${p.name};`);
-                lines.push('}', '');
-            }
-        }
-
-        let setter = false;
-        if (this.props?.length) {
-            // enum of indexes
-            lines.push('enum {');
-            let first = true;
-            for (const p of this.props) {
-                let d = '    ' + this.propIndexName(p);
-                if (first) {
-                    d += ' = 1';
-                    first = false;
-                }
-                lines.push(d + ',');
-            }
-            lines.push('    NUM_PROPS', '};', '');
-            lines.push('static GParamSpec *properties[NUM_PROPS] = {NULL};',
-                '');
-            
-            const sap = this.selfAndPriv();
-            
-            // setter if needed
-            for (const p of this.props) {
-                if (!p.construct && !p.readonly) {
-                    continue;
-                }
-                if (!setter) {
-                    lines.push('static void set_property(GObject *object, ' +
-                        'guint prop_id, const GValue *value, ' +
-                        'GParamSpec *pspec)', '{');
-                    lines.push(...sap[0]);
-                    lines.push('    switch (prop_id)', '    {');
-                    setter = true;
-                }
-                lines.push(`        case ${this.propIndexName(p)}:`,
-                    `            ${sap[1]}->${p.name} = `,
-                    `            g_value_get_` +
-                    `${this.nameTx.gParamSpecType(p.type)}(value);`,
-                    `            break;`);
-            }
-            if (setter) {
-                lines.push(...this.closePropSwitch());
-            }
-
-            // getter
-            lines.push('static void get_property(GObject *object, ' +
-                    'guint prop_id, GValue *value, GParamSpec *pspec)', '{');
-            lines.push(...sap[0]);
-            // Avoids a warning if priv/self are unused, harmless if they are
-            lines.push('    (void) self;');
-            if (this.priv) {
-                lines.push('    (void) priv;');
-            }
-
-            lines.push('    switch (prop_id)', '    {');
-            for (const p of this.props) {
-                const src = p.construct ?
-                    `${sap[1]}->${p.name}` : `GL_${p.name}`;
-                lines.push(`        case ${this.propIndexName(p)}:`,
-                    `            g_value_set_` +
-                    `${this.nameTx.gParamSpecType(p.type)}(value, ${src});`,
-                    `            break;`);
-            }
-            lines.push(...this.closePropSwitch());
-        }
-
-        // class_init()
-        lines.push('static void ' +
-                this.nameTx.methodNameFromJS('class_init', this.name) + '(',
-                '    ' + this.gClassName + 'Class *klass)',
-            '{',
-            this.props?.length ?
-                '    GObjectClass *oclass = G_OBJECT_CLASS(klass);' :
-                '    (void) klass;');
-
-        if (setter) {
-            lines.push(`    oclass->set_property = set_property;`);
-        }
-        if (this.props?.length) {
-            lines.push(`    oclass->get_property = get_property;`);
-        }
-        for (const p of this.props) {
-            const pspec = this.paramSpec(p);
-            const p1 = pspec.shift();
-            lines.push(`    properties[${this.propIndexName(p)}] = ${p1}`,
-                ...pspec);
-        }
-        if (this.props?.length) {
-            lines.push('    g_object_class_install_properties(oclass, ' +
-                'NUM_PROPS, properties);');
-        }
-        lines.push('}', '');
-
-        return lines;
+        return [];
     }
 
     getFunctionDeclarations() {
