@@ -8,7 +8,7 @@ possible to [WebGL](https://www.khronos.org/webgl/).
 ## Status
 
 It can now generate a GI library which in theory fully supports all of WebGL 1,
-with the help of Javascript wrappers (supplied in the `gjswrappers` folder).
+with the help of Javascript wrappers (supplied in the `gjs_src` folder).
 However, gjs returns undefined for all the upper-case constant property values,
 so I'll need to add a workaround. Making the wrappers auto-generated and moving
 the constants into them is probably the best option for run-time efficiency.
