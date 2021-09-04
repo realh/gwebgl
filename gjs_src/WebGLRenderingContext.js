@@ -179,4 +179,15 @@ export const WebGLRenderingContext = GObject.registerClass({
         super.readPixels(x, y, width, height, format, type,
             new Uint8Array(pixels.buffer));
     }
+
+    get_glsl_version(es) {
+        return es ? '100' : '120';
+    }
+
 });
+
+// Defined separately in case the typename would refer to the class before it
+// got decorated for GObject when used in the context of a static method
+WebGLRenderingContext.new_for_gtk_gl_area = function(gtk_gl_area) {
+    return new WebGLRenderingContext({gtk_gl_area});
+}

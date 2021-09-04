@@ -9,13 +9,13 @@ import {WebGLRenderingContext} from './gjs_src/WebGLRenderingContext.js';
 let rendered = false;
 
 function render(glarea, gl) {
-    print('render');
     if (!rendered) {
         rendered = true;
         const ctx = glarea.get_context();
-        printerr('At first render: ' +
+        printerr('Context: ' +
             `${ctx.get_required_version()} ES ${ctx.get_use_es()}`);
     }
+    print('render');
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 }
@@ -31,18 +31,7 @@ function activate(app) {
     const glarea = Gtk.GLArea.new();
     //glarea.set_required_version(2, 0);
     //glarea.set_use_es(true);
-    const gl = new WebGLRenderingContext();
-    const specs = GObject.Object.list_properties.call(gl)
-    printerr("WebGLRenderingContext properties:")
-    for (const p of specs) {
-        printerr(`  ${p.get_name()}`)
-    }
-    printerr(`gl.COLOR_BUFFER_BIT: ${gl.COLOR_BUFFER_BIT}`)
-    printerr(`gl['COLOR-BUFFER-BIT']: ${gl['COLOR-BUFFER-BIT']}`)
-    printerr('pspec for COLOR-BUFFER-BIT: ' +
-        GObject.Object.find_property.call(gl, 'COLOR-BUFFER-BIT')?.get_name())
-    printerr('pspec for COLOR_BUFFER_BIT: ' +
-        GObject.Object.find_property.call(gl, 'COLOR_BUFFER_BIT')?.get_name())
+    const gl = WebGLRenderingContext.new_for_gtk_gl_area(glarea);
     glarea.connect('render', () => {
         render(glarea, gl);
         return true;
@@ -57,14 +46,9 @@ function activate(app) {
                 const surface = glarea.get_native().get_surface();
                 ctx = surface.create_gl_context();
             }
-            printerr(`Created a ${ctx.constructor.$gtype.name}`);
             ctx.set_debug_enabled(true);
-            printerr('Newly created context has required_version ' +
-                `${ctx.get_required_version()} ES ${ctx.get_use_es()}`);
             ctx.set_use_es(1);
             ctx.set_required_version(2, 0);
-            printerr('After requesting ES 2.0: ' +
-                `${ctx.get_required_version()} ES ${ctx.get_use_es()}`);
             return ctx;
         } catch (e) {
             logError(e);

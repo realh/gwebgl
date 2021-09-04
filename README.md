@@ -43,14 +43,22 @@ module imports.
 
 Create a rendering context with:
 ```
-const gl = new WebGLRenderingContext();
-gl.gtk_gl_area = myGtkGLAreaWidget;
+const gl = WebGLRenderingContext.new_for_gl_area(myGtkGLAreaWidget);
 ```
 where `myGtkGLAreaWidget` is the GtkGLArea you're running the context in. This
 will be used as the context's `canvas` property.
 
 Where WebGL expects an image source, for example the overload of `texImage2D`
 that doesn't take raw data, use a GdkPixbuf.
+
+# GLSL versions
+
+The shader language version to use depends both on whether you're using WebGL 1
+or 2 and whether the GDKGLContext is ES. The JS wrappers include an override
+for `shaderSource` that will add the appropriate version tag. Leave the first
+line of your shader source blank, then the wrapper doesn't need to add an
+aditional newline, causing a discrepancy in any error messages. You can still
+provide a version tag if you want to override what gwebgl chooses automatically.
 
 # OpenGL ES with GTK
 

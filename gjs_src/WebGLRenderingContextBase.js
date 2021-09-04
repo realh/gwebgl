@@ -302,6 +302,23 @@ export function mixinWebGLRenderingContextBase(parentClass) {
                 super.vertexAttrib4fvFromArray(index, values);
             }
         }
+
+        shaderSource(shader, source) {
+            if (this.canvas && !(source.startsWith('#version') ||
+                source.includes('\n#version')))
+            {
+                const es = this.canvas.get_use_es();
+                const version = this.get_glsl_version?.(es);
+                if (version) {
+                    version = '#version ' + version;
+                    if (!source.startsWith('\n')) {
+                        version += '\n';
+                    }
+                    source = version + source;
+                }
+            }
+            super.shaderSource(shader, source);
+        }
     };
     addGLConstants(Gwebgl.WebGLRenderingContextBase, namer[name].prototype);
     return GObject.registerClass({
