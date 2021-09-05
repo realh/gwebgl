@@ -307,7 +307,7 @@ export function mixinWebGLRenderingContextBase(parentClass) {
             if (this.canvas && !(source.startsWith('#version') ||
                 source.includes('\n#version')))
             {
-                const es = this.canvas.get_use_es();
+                const es = this.canvas.get_context().get_use_es();
                 let version = this.get_glsl_version?.(es);
                 if (version) {
                     version = '#version ' + version;
