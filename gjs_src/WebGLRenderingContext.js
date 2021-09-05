@@ -15,18 +15,24 @@ export const WebGLRenderingContext = GObject.registerClass({
         } else if (data === null) {
             // Not sure how this makes sense, but MDN says it can be NULL
             super.bufferData(target, 0, usage);
-        } else if (data instanceof ArrayBufferView) {
-            data = data.buffer;
+            return;
+        } else if (!(data instanceof Uint8Array)) {
+            if (data.buffer) {
+                data = data.buffer;
+            }
+            data = new Uint8Array(data);
         }
-        // else (data instanceof ArrayBuffer)
-        super.bufferDataFromByteArray(target, new Uint8Array(data), usage);
+        super.bufferDataFromByteArray(target, data, usage);
     }
 
     bufferSubData(target, offset, data) {
-        if (data instanceof ArrayBufferView) {
-            data = data.buffer;
+        if (!(data instanceof Uint8Array)) {
+            if (data.buffer) {
+                data = data.buffer;
+            }
+            data = new Uint8Array(data);
         }
-        super.bufferSubDataFromByteArray(target, offset, new Uint8Array(data));
+        super.bufferSubDataFromByteArray(target, offset, data);
     }
 
     //texImage2D(target, level, internalformat, format, type, source);
