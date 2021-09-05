@@ -11,7 +11,7 @@ export function main(canvas, gl, textureImage) {
   // Vertex shader program
 
   const vsSource = `
-    attribute vec4 aVertexPosition;
+    attribute vec3 aVertexPosition;
     attribute vec3 aVertexNormal;
     attribute vec2 aTextureCoord;
 
@@ -23,7 +23,8 @@ export function main(canvas, gl, textureImage) {
     varying highp vec3 vLighting;
 
     void main(void) {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      highp vec4 pos = vec4(aVertexPosition, 1.0);
+      gl_Position = uProjectionMatrix * uModelViewMatrix * pos;
       vTextureCoord = aTextureCoord;
 
       // Apply lighting effect

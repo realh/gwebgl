@@ -99,7 +99,7 @@ function first_render(canvas, gl, image) {
 }
 
 function alert(message) {
-    printErr('alert: ' + message);
+    printerr('alert: ' + message);
 }
 
 let gdk_debug = GLib.getenv("GDK_DEBUG")
