@@ -13,7 +13,6 @@ let canvas = null;
 let renderTag = null;
 let animationTag = null;
 let renderCallback = null;
-let delta = 0;
 
 export function requestAnimationFrame(cb) {
     renderCallback = cb;
@@ -30,8 +29,7 @@ export function requestAnimationFrame(cb) {
                         renderTag = null;
                     }
                     if (renderCallback) {
-                        delta += 16;
-                        renderCallback(delta);
+                        renderCallback(GLib.get_monotonic_time() / 1000);
                         return true;
                     }
                     return false;
