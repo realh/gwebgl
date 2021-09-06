@@ -42,6 +42,7 @@ function activate(app, cb) {
         const win = Gtk.ApplicationWindow.new(app);
         win.set_default_size(800, 600);
         canvas = Gtk.GLArea.new();
+        canvas.set_has_depth_buffer(true);
         canvas.set_use_es(true);
         canvas.set_required_version(2, 0);
         canvas.connect('unrealize', () => {
