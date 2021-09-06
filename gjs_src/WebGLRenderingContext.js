@@ -174,6 +174,7 @@ export const WebGLRenderingContext = GObject.registerClass({
 
     uniformMatrix4fv(location, transpose, v) {
         if (v instanceof Float32Array) {
+            v = new Uint8Array(v.buffer);
             super.uniformMatrix4fvFromByteArray(location, transpose,
                 new Uint8Array(v.buffer));
         } else {

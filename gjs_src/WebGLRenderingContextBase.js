@@ -161,7 +161,7 @@ export function mixinWebGLRenderingContextBase(parentClass) {
 
         getActiveUniform(program, index) {
             const info = super.getActiveUniform(program, index);
-            return {type: info[0], size: info[1], name: info[2]};
+            return {size: info[0], type: info[1], name: info[2]};
         }
 
         // TODO: With extensions or WebGL 2 this will sometimes need to call
@@ -175,6 +175,7 @@ export function mixinWebGLRenderingContextBase(parentClass) {
             if (info.size < 1) {
                 info.size = 1;
             }
+            print(`Uniform ${info.name} size ${info.size} type ${info.type}`);
             switch (info.type) {
                 case this.FLOAT:
                     if (info.size == 1) {

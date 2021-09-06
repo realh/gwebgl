@@ -95,7 +95,12 @@ export function adaptMethodForInvocation(m) {
                         div = 1;
                     }
                     div = (div == 1) ? '' : ` / ${div}`;
-                    m.args.splice(i, 0, {name: `${a.name}->len${div}`});
+                    // In glUniformMatrix* the array length comes before the
+                    // transpose argument
+                    m.args.splice(m.name.startsWith('uniformMatrix') ?
+                        i - 1 : i,
+                        0,
+                        {name: `${a.name}->len${div}`});
                     ++i;
                 }
                 // For most cases we should prefer a const pointer, but for

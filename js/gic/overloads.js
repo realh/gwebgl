@@ -31,7 +31,11 @@ export class ListOverloadModifier {
                 if (methodNeedsArrayLength(m)) {
                     const lName = a.name + 'Length';
                     m.args[i].arrayLength = lName;
-                    m.args.splice(i, 0,
+                    // In glUniformMatrix* the array length comes before the
+                    // transpose argument
+                    m.args.splice(m.name.startsWith('uniformMatrix') ?
+                        i - 1 : i,
+                        0,
                         { name: lName, type: { name: 'GLint' }});
                 }
                 m.name += 'FromArray';
