@@ -13,21 +13,30 @@ let canvas = null;
 let renderTag = null;
 let animationTag = null;
 let renderCallback = null;
+let delta = 0;
 
 export function requestAnimationFrame(cb) {
     renderCallback = cb;
-    if (renderTag === null) {
-        renderTag = canvas.connect('render', () => {
-            if (renderCallback) {
-                renderCallback(GLib.get_monotonic_time() / 1000);
-                return true;
-            }
-            return false;
-        });
-    }
     if (animationTag === null && canvas) {
         animationTag = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            animationTag = null;
+            if (animationTag) {
+                GLib.source_remove(animationTag);
+                animationTag = null;
+            }
+            if (renderTag === null) {
+                renderTag = canvas.connect('render', () => {
+                    if (renderTag !== null) {
+                        canvas.disconnect(renderTag);
+                        renderTag = null;
+                    }
+                    if (renderCallback) {
+                        delta += 16;
+                        renderCallback(delta);
+                        return true;
+                    }
+                    return false;
+                });
+            }
             canvas.queue_render();
             return false;
         });
