@@ -224,10 +224,6 @@ GHashTable *${getterName}()
         nm = ClassBuilder.renames[nm] || nm;
         if (nm == 'depthRange') {
             nm += 'f';
-        } else if (nm.endsWith('FromArray')) {
-            nm = nm.replace('FromArray', '');
-        } else if (nm.endsWith('FromByteArray')) {
-            nm = nm.replace('FromByteArray', '');
         } else if (ClassBuilder.ivGetters.includes(nm)) {
             nm = nm + 'iv';
         }

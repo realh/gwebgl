@@ -268,42 +268,6 @@ export function mixinWebGLRenderingContextBase(parentClass) {
             }
         }
 
-        vertexAttrib1fv(index, values) {
-            if (values instanceof Float32Array) {
-                super.vertexAttrib1fvFromByteArray(index,
-                    new Uint8Array(values.buffer));
-            } else {
-                super.vertexAttrib1fvFromArray(index, values);
-            }
-        }
-
-        vertexAttrib2fv(index, values) {
-            if (values instanceof Float32Array) {
-                super.vertexAttrib2fvFromByteArray(index,
-                    new Uint8Array(values.buffer));
-            } else {
-                super.vertexAttrib2fvFromArray(index, values);
-            }
-        }
-
-        vertexAttrib3fv(index, values) {
-            if (values instanceof Float32Array) {
-                super.vertexAttrib3fvFromByteArray(index,
-                    new Uint8Array(values.buffer));
-            } else {
-                super.vertexAttrib3fvFromArray(index, values);
-            }
-        }
-
-        vertexAttrib4fv(index, values) {
-            if (values instanceof Float32Array) {
-                super.vertexAttrib4fvFromByteArray(index,
-                    new Uint8Array(values.buffer));
-            } else {
-                super.vertexAttrib4fvFromArray(index, values);
-            }
-        }
-
         shaderSource(shader, source) {
             if (this.canvas && !(source.startsWith('#version') ||
                 source.includes('\n#version')))

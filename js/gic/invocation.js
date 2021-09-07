@@ -75,8 +75,9 @@ export function adaptMethodForInvocation(m) {
     } else {
         let arrayLength = null;
         let matSize = 1;
-        if (m.name == 'bufferData') {
+        if (m.name == 'bufferDataSizeOnly') {
             m.args.splice(2, 0, {name: 'NULL', type: 'any'});
+            m.name = 'bufferData';
         } else if ((matSize = matrixSizeMultiplier(m)) > 1) {
             arrayLength =
                 m.args.find(a => a.arrayLength != undefined)?.arrayLength;
@@ -108,7 +109,7 @@ export function adaptMethodForInvocation(m) {
                 // use const
                 a.name = `(gpointer) ${a.name}->data`;
             } else if (tn == 'GLintptr' &&
-                !m.name.startsWith('bufferSubDataFromByteArray'))
+                !m.name.startsWith('bufferSubData'))
             {
                 // Mostly WebGL uses GLintptr for actual pointers, but in
                 // bufferSubData it's used for an int offset

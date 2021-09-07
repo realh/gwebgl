@@ -12,6 +12,11 @@ import { methodNeedsArrayLength } from './invocation.js';
 export class ListOverloadModifier {
     overload(method) {
         let replacements = [];
+        if (method.name == 'bufferData' && method.args[1].name == 'size') {
+            const m = copyMethod(method);
+            m.name += 'SizeOnly';
+            return [m];
+        }
         for (const i in method.args) {
             let a = method.args[i];
             const t = a.type.name;
@@ -23,9 +28,7 @@ export class ListOverloadModifier {
                 m.name += 'FromPixbuf';
                 replacements.push(m);
             } else if (t.endsWith('32List')) {
-                let m = this.getByteArrayVersion(method, i);
-                replacements.push(m);
-                m = copyMethod(method);
+                const m = copyMethod(method);
                 const etype = `GL${t.replace('32List', '').toLowerCase()}[]`;
                 m.args[i].type = {name: etype};
                 if (methodNeedsArrayLength(m)) {
@@ -38,7 +41,6 @@ export class ListOverloadModifier {
                         0,
                         { name: lName, type: { name: 'GLint' }});
                 }
-                m.name += 'FromArray';
                 replacements.push(m);
             }
         }
@@ -54,7 +56,7 @@ export class ListOverloadModifier {
             t = t.replace('List', 'Array');
         }
         m.args[i].type = {name: t};
-        m.name += 'FromByteArray';
+        //m.name += 'FromByteArray';
         return m;
     }
 }
