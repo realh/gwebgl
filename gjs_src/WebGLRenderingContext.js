@@ -68,8 +68,20 @@ export const WebGLRenderingContext = GObject.registerClass({
     }
 
     readPixels(x, y, width, height, format, type, pixels) {
-        super.readPixels(x, y, width, height, format, type,
+        if (!pixels) {
+            return;
+        }
+        // The pixels argument is (out caller-allocates). I'm not sure whether
+        // the data is copied or the original pixels' data is modified. In the
+        // former case the output data needs to be copied back into pixels.
+        let result = super.readPixels(x, y, width, height, format, type,
             new Uint8Array(pixels.buffer));
+        if (result.buffer != pixels.buffer) {
+            if (result.constructor != pixels.constructor) {
+                result = new pixels.constructor(result.buffer);
+            }
+            pixels.set(result);
+        }
     }
 
     get_glsl_version(es) {

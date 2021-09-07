@@ -101,13 +101,13 @@ export function adaptMethodForInvocation(m) {
                     m.args.splice(m.name.startsWith('uniformMatrix') ?
                         i - 1 : i,
                         0,
-                        {name: `${a.name}->len${div}`});
+                        {name: `${a.name} ? ${a.name}->len${div} : 0`});
                     ++i;
                 }
                 // For most cases we should prefer a const pointer, but for
                 // readPixels we can't use const, so it's easiest just to never
                 // use const
-                a.name = `(gpointer) ${a.name}->data`;
+                a.name = `${a.name} ? (gpointer) ${a.name}->data : NULL`;
             } else if (tn == 'GLintptr' &&
                 !m.name.startsWith('bufferSubData'))
             {

@@ -17,6 +17,8 @@ export class ListOverloadModifier {
             m.name += 'SizeOnly';
             return [m];
         }
+        if (method.name == 'readPixels') {
+        }
         for (const i in method.args) {
             let a = method.args[i];
             const t = a.type.name;

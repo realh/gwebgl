@@ -3,7 +3,8 @@
 // { name: string, type: Type, readOnly: boolean, optional: boolean }
 // or a Method:
 // { name: string,
-//   args: {name: string, Type: type, optional: boolean, out?: boolean,
+//   args: {name: string, type: Type, optional?: boolean,
+//          direction?: 'out' | 'inout' | 'in',
 //          arrayLength?: string}[],
 //   returnType: Type }
 // where arrayLength is the name of the argument containing an array's length

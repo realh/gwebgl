@@ -100,13 +100,13 @@ export class NameTransformer {
                 argName: a.name
             };
             let t = this.errorCheckedTypeConversion(td);
-            if (a.out) {
+            if (a.direction == 'out') {
                 t += '*';
             }
             if (lines) {
                 let s = ` * @${a.name}:`;
-                if (a.out) {
-                    s += ' (out)';
+                if (a.direction) {
+                    s += ` (${a.direction})`;
                     if (a.optional) {
                         s += ' (optional)';
                     }
@@ -179,10 +179,18 @@ export class NameTransformer {
 
     // Some methods have signatures that don't map directly between WebGL
     // and OpenGL ES. This modifies the method in place and returns it. If it
-    // returns null the method is not supported.
+    // returns null the method is not supported. This also handles the special
+    // case of readPixels where the caller allocates the output.
     adjustSignature(method, className) {
         if (NameTransformer.methodBlacklist.includes(method.name)) {
             return null;
+        }
+        if (method.name == 'readPixels') {
+            const a = method.args[6];
+            if (a?.type?.name?.includes('Array')) {
+                a.direction = 'out caller-allocates';
+            }
+            return method;
         }
         const rt = method.returnType.name;
         switch (rt) {
@@ -213,7 +221,7 @@ export class NameTransformer {
         }
         method.args.push({name: argName,
             type: {name: argType, nullable, transfer},
-            optional: true, out: true});
+            optional: true, direction: 'out'});
     }
 
     errorCheckedTypeConversion(typeDetails) {

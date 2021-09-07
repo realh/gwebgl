@@ -24,7 +24,7 @@ export class TypeMapper {
         {
             n = `Gwebgl${n} *`;
         } else if (n.startsWith('"') || n.startsWith('string')) {
-            n = 'char *';
+            n = 'gchar *';
         } else if (TypeMapper.builtins.includes(n)) {
             n = n.replace('GL', 'g');
         } else if (m) {
