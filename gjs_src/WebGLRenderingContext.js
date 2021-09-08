@@ -71,15 +71,21 @@ export const WebGLRenderingContext = GObject.registerClass({
         if (!pixels) {
             return;
         }
-        // The pixels argument is (out caller-allocates). I'm not sure whether
-        // the data is copied or the original pixels' data is modified. In the
-        // former case the output data needs to be copied back into pixels.
-        let result = super.readPixels(x, y, width, height, format, type,
-            new Uint8Array(pixels.buffer));
-        if (result.buffer != pixels.buffer) {
-            if (result.constructor != pixels.constructor) {
-                result = new pixels.constructor(result.buffer);
+        // Gjs seems to copy byte arrays, so the wrapper needs to copy the
+        // output buffer into the input.
+        if (!(pixels instanceof Uint8Array)) {
+            if (pixels.buffer) {
+                pixels = new Uint8Array(pixels.buffer);
+            } else {
+                // Assume pixels is a buffer, this should throw an error if it
+                // isn't, which is the most sensible reaction
+                pixels = new Uint8Array(pixels);
             }
+        }
+        let result = super.readPixels(x, y, width, height, format, type,
+            pixels);
+        // pixels and result are now both Uint8Array
+        if (result.buffer != pixels.buffer) {
             pixels.set(result);
         }
     }

@@ -197,6 +197,10 @@ GHashTable *${getterName}()
         }
         if (create) {
             lines.push('    return a;');
+        } else if (m.name == 'readPixels' &&
+            m.args[6]?.type?.name?.includes('Array'))
+        {
+            lines.push(`    return ${m.args[6].name};`);
         }
         return lines;
     }

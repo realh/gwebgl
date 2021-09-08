@@ -185,11 +185,15 @@ export class NameTransformer {
         if (NameTransformer.methodBlacklist.includes(method.name)) {
             return null;
         }
-        if (method.name == 'readPixels') {
-            const a = method.args[6];
-            if (a?.type?.name?.includes('Array')) {
-                a.direction = 'out caller-allocates';
-            }
+        if (method.name == 'readPixels' &&
+            method.args[6]?.type?.name?.includes('Array'))
+        {
+            // Gjs copies byte arrays so this needs to return the altered array
+            // for the wrapper to copy into the input. Making both input and
+            // output transfer full is safer and shouldn't cause any additional
+            // copying.
+            method.args[6].type.transfer = 'full';
+            method.returnType = { name: 'Uint8Array', transfer: 'full' };
             return method;
         }
         const rt = method.returnType.name;

@@ -72,6 +72,10 @@ export function adaptMethodForInvocation(m) {
     {
         m.name += 's';
         m.args = [{name: '1'}, {name: `&${m.args[0].name}`}];
+    } else if (m.name == 'readPixels' &&
+        m.args[6]?.type?.name?.includes('Array'))
+    {
+        m.returnType = {name: 'void'};
     } else {
         let arrayLength = null;
         let matSize = 1;
