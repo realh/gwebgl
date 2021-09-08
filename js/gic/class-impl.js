@@ -200,7 +200,15 @@ GHashTable *${getterName}()
         } else if (m.name == 'readPixels' &&
             m.args[6]?.type?.name?.includes('Array'))
         {
-            lines.push(`    return ${m.args[6].name};`);
+            let n = m.args[6].name.replace('(gpointer) ', '');
+            let q = n.indexOf(' ?');
+            if (q < 0) {
+                q = n.indexOf('->');
+            }
+            if (q >= 0) {
+                n = n.substring(0, q);
+            }
+            lines.push(`    return ${n};`);
         }
         return lines;
     }
