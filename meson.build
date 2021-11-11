@@ -54,3 +54,37 @@ install_data('gjs_src/WebGLRenderingContextBase.js',
   'gjs_src/WebGLRenderingContext.js')
 install_data('README.md',
   install_dir: get_option('datadir')/'doc'/'gwebgl')
+
+libgwebglgtk3 = library('gwebglgtk3', ['gwebglgtk/gwebglgtk.c'],
+    dependencies: [dependency('gtk+-3.0')], install: true)
+
+install_headers('gwebglgtk/gwebglgtk.h', subdir: 'gwebglgtk3')
+
+libgwebglgtk3_gir = gnome.generate_gir(
+    libgwebglgtk3,
+    sources: ['gwebglgtk/gwebglgtk.c', 'gwebglgtk/gwebglgtk.h'],
+    namespace: 'GwebglGtk',
+    nsversion: '3.0',
+    identifier_prefix: 'GwebglGtk',
+    symbol_prefix: 'gwebglgtk',
+    includes: ['Gtk-3.0'],
+    header: 'gwebglgtk/gwebglgtk.h',
+    install: true,
+)
+
+libgwebglgtk4 = library('gwebglgtk4', ['gwebglgtk/gwebglgtk.c'],
+    dependencies: [dependency('gtk4')], install: true)
+
+install_headers('gwebglgtk/gwebglgtk.h', subdir: 'gwebglgtk4')
+
+libgwebglgtk4_gir = gnome.generate_gir(
+    libgwebglgtk3,
+    sources: ['gwebglgtk/gwebglgtk.c', 'gwebglgtk/gwebglgtk.h'],
+    namespace: 'GwebglGtk',
+    nsversion: '4.0',
+    identifier_prefix: 'GwebglGtk',
+    symbol_prefix: 'gwebglgtk',
+    includes: ['Gtk-4.0'],
+    header: 'gwebglgtk/gwebglgtk.h',
+    install: true,
+)

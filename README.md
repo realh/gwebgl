@@ -83,6 +83,18 @@ GDK_DEBUG=gl-gles,opengl MESA_DEBUG=1 LD_LIBRARY_PATH=./build ./cdemo
 ```
 For GTK3 change the `gtk4` above to `gtk+-3.0`.
 
+# GwebglGtk
+
+A pair of mini-modules is provided, both created from the same source.
+`GwebglGtk-3.0` and `GwebglGtk-4.0` are for `Gtk-3.0` and `Gtk-4.0`
+respectively. They provide a single function
+`GwebglGtk.queue_render_when_idle(glarea)`, which takes a `Gtk.GLArea widget`
+as its parameter. This sets up an idle callback to call
+`gtk_gl_area_queue_render()`.  This is useful because calling
+`gtk_gl_area_queue_render` while already handling a "render" signal has no
+effect, and using `GLib.idle_add` in gjs seems to break it, by causing attempts
+to run JS callbacks during garbage collection.
+
 # How the constants are modelled
 
 The generated C code for classes that include property constants in WebGL stores
