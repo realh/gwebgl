@@ -9,6 +9,58 @@ import {WebGLRenderingContext} from './gjs_src/WebGLRenderingContext.js';
 
 let rendered = false;
 let programInfo, buffers;
+let app;
+
+class ColourChanger {
+    constructor() {
+        this.red = 0;
+        this.green = 0;
+        this.blue = 0;
+        this._getNewTarget();
+    }
+
+    get rgba() { return [this.red / 255.0,
+        this.green / 255.0, this.blue / 255.0, 1.0] };
+
+    update() {
+        let v = this[this._targetChannel];
+        if (v == this._targetValue) {
+            this._getNewTarget();
+            this.update();
+            return;
+        } else if (v > this._targetValue) {
+            --v;
+        } else if (v < this._targetValue) {
+            ++v;
+        }
+        this[this._targetChannel] = v;
+    }
+
+    _getNewTarget() {
+        const r = Math.random();
+        let c;
+        if (r < 0.333333333333) {
+            c = "red";
+        } else if (r < 0.666666666666) {
+            c = "green";
+        } else {
+            c = "blue";
+        }
+        this._targetChannel = c;
+        this._targetValue = this._getTargetValue(this[c]);
+    }
+
+    _getTargetValue(current) {
+        const r = Math.floor(Math.random() * 63);
+        if (current < 128) {
+            return 255 - r;
+        } else {
+            return r;
+        }
+    }
+}
+
+let colourChanger = new ColourChanger();
 
 function render(glarea, gl) {
     if (!rendered) {
@@ -65,11 +117,12 @@ function activate(app) {
         win.set_child(glarea);
         win.present();
     }
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, 1000, () => tick(glarea));
+    //GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, 1000, () => tick(glarea));
+    GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => tick(glarea));
 }
 
 function main() {
-    const app = Gtk.Application.new('uk.co.realh.gwebgl.demo.js',
+    app = Gtk.Application.new('uk.co.realh.gwebgl.demo.js',
         Gio.ApplicationFlags.NONE);
     app.connect('activate', activate);
     app.run([]);
@@ -93,8 +146,9 @@ function mozSetup(gl) {
   // Fragment shader program
 
   const fsSource = `
+    uniform highp vec4 uColour;
     void main() {
-      gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+      gl_FragColor = uColour;
     }
   `;
 
@@ -109,6 +163,9 @@ function mozSetup(gl) {
     program: shaderProgram,
     attribLocations: {
       vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+    },
+    uniformLocations: {
+      colour: gl.getUniformLocation(shaderProgram, 'uColour'),
     },
   };
 
@@ -196,6 +253,8 @@ function drawScene(gl, programInfo, buffers) {
   gl.useProgram(programInfo.program);
 
   // Set the shader uniforms
+  colourChanger.update();
+  gl.uniform4f(programInfo.uniformLocations.colour, ...colourChanger.rgba);
 
   {
     const offset = 0;
@@ -254,7 +313,8 @@ function loadShader(gl, type, source) {
 
 
 function alert(m) {
-    print(m);
+    printerr(m);
+    app.quit();
 }
 
 
