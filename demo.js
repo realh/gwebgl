@@ -146,7 +146,7 @@ function mozSetup(gl) {
   // Fragment shader program
 
   const fsSource = `
-    uniform highp vec4 uColour;
+    uniform vec4 uColour;
     void main() {
       gl_FragColor = uColour;
     }
